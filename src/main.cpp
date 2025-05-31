@@ -75,6 +75,7 @@ int main() {
 
         // Update game state
         main_player.move(deltaTime);
+        main_player.update(deltaTime, enemies);  // Update weapons and handle attacks
         main_player.wrapPosition();  // Handle world wrapping
         
         // Update all enemies

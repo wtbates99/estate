@@ -13,6 +13,7 @@ set(SOURCES
     src/main.cpp
     src/player.cpp
     src/enemy.cpp
+    src/weapon.cpp
     src/minimap.cpp
     src/enemies/basic_enemies.cpp
     src/enemies/combat_enemies.cpp
@@ -24,6 +25,7 @@ set(SOURCES
 set(HEADERS
     src/player.h
     src/enemy.h
+    src/weapon.h
     src/minimap.h
     src/enemies/basic_enemies.h
     src/enemies/combat_enemies.h
