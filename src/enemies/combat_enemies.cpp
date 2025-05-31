@@ -11,7 +11,16 @@ BruteEnemy::BruteEnemy() : Enemy(), chargeSpeed(400.0f), isCharging(false) {
     attackCooldown = 2.0f;
     directionChangeInterval = 2.0f; // Slower to change direction
     
-    initializeShape(sf::Vector2f(60.f, 60.f), sf::Color(139, 69, 19)); // Brown
+    // Try to load sprite, fallback to colored rectangle if it fails
+    if (!loadTexture("assets/textures/enemies/brute.png")) {
+        initializeShape(sf::Vector2f(60.f, 60.f), sf::Color(139, 69, 19)); // Brown
+    } else {
+        sprite.setTexture(texture);
+        sprite.setScale(sf::Vector2f(1.2f, 1.2f)); // Larger scale for brute
+        sf::FloatRect bounds = sprite.getLocalBounds();
+        sprite.setOrigin(bounds.width / 2.f, bounds.height / 2.f);
+        sprite.setPosition(worldPosition);
+    }
 }
 
 void BruteEnemy::updateAI(const sf::Vector2f& playerPos, float deltaTime) {
@@ -58,7 +67,7 @@ void BruteEnemy::attack(Player& player) {
     // Brute does more damage when charging
     if (attackTimer < attackCooldown) return;
     
-    sf::Vector2f direction = player.getPosition() - shape.getPosition();
+    sf::Vector2f direction = player.getPosition() - sprite.getPosition();
     float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
     
     if (distance < attackRange) {
@@ -77,7 +86,16 @@ AssassinEnemy::AssassinEnemy() : Enemy(), stealthTimer(0.0f), isStealthed(false)
     attackCooldown = 0.6f;
     directionChangeInterval = 0.8f;
     
-    initializeShape(sf::Vector2f(30.f, 30.f), sf::Color::Magenta);
+    // Try to load sprite, fallback to colored rectangle if it fails
+    if (!loadTexture("assets/textures/enemies/assassin.png")) {
+        initializeShape(sf::Vector2f(30.f, 30.f), sf::Color::Magenta);
+    } else {
+        sprite.setTexture(texture);
+        sprite.setScale(sf::Vector2f(0.7f, 0.7f)); // Medium scale for assassin
+        sf::FloatRect bounds = sprite.getLocalBounds();
+        sprite.setOrigin(bounds.width / 2.f, bounds.height / 2.f);
+        sprite.setPosition(worldPosition);
+    }
 }
 
 void AssassinEnemy::updateAI(const sf::Vector2f& playerPos, float deltaTime) {
@@ -123,11 +141,11 @@ void AssassinEnemy::updateAI(const sf::Vector2f& playerPos, float deltaTime) {
 void AssassinEnemy::draw(sf::RenderWindow& window) const {
     if (isStealthed) {
         // Draw semi-transparent when stealthed
-        sf::RectangleShape stealthShape = shape;
-        sf::Color stealthColor = shape.getFillColor();
+        sf::Sprite stealthSprite = sprite;
+        sf::Color stealthColor = sprite.getColor();
         stealthColor.a = 100; // Semi-transparent
-        stealthShape.setFillColor(stealthColor);
-        window.draw(stealthShape);
+        stealthSprite.setColor(stealthColor);
+        window.draw(stealthSprite);
     } else {
         Enemy::draw(window);
     }

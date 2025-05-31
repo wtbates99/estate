@@ -11,7 +11,16 @@ SniperEnemy::SniperEnemy() : Enemy(), aimTimer(0.0f), isAiming(false) {
     attackCooldown = 4.0f; // Slow but powerful attacks
     directionChangeInterval = 3.0f; // Stays in position longer
     
-    initializeShape(sf::Vector2f(35.f, 35.f), sf::Color::Cyan);
+    // Try to load sprite, fallback to colored rectangle if it fails
+    if (!loadTexture("assets/textures/enemies/sniper.png")) {
+        initializeShape(sf::Vector2f(35.f, 35.f), sf::Color::Cyan);
+    } else {
+        sprite.setTexture(texture);
+        sprite.setScale(sf::Vector2f(0.9f, 0.9f)); // Medium scale for sniper
+        sf::FloatRect bounds = sprite.getLocalBounds();
+        sprite.setOrigin(bounds.width / 2.f, bounds.height / 2.f);
+        sprite.setPosition(worldPosition);
+    }
 }
 
 void SniperEnemy::updateAI(const sf::Vector2f& playerPos, float deltaTime) {
@@ -47,7 +56,7 @@ void SniperEnemy::updateAI(const sf::Vector2f& playerPos, float deltaTime) {
 void SniperEnemy::attack(Player& player) {
     if (attackTimer < attackCooldown || !isAiming) return;
     
-    sf::Vector2f direction = player.getPosition() - shape.getPosition();
+    sf::Vector2f direction = player.getPosition() - sprite.getPosition();
     float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
     
     if (distance < SNIPE_RANGE) {
@@ -57,7 +66,7 @@ void SniperEnemy::attack(Player& player) {
         isAiming = false;
         
         // Visual feedback: change color briefly when shooting
-        shape.setFillColor(sf::Color::White);
+        sprite.setColor(sf::Color::White);
     }
 }
 
@@ -73,7 +82,16 @@ SwarmEnemy::SwarmEnemy() : Enemy(), swarmRadius(50.0f), orbitAngle(0.0f) {
     // Random starting orbit angle
     orbitAngle = (rand() % 360) * (3.14159f / 180.0f);
     
-    initializeShape(sf::Vector2f(20.f, 20.f), sf::Color(255, 165, 0)); // Orange
+    // Try to load sprite, fallback to colored rectangle if it fails
+    if (!loadTexture("assets/textures/enemies/swarm.png")) {
+        initializeShape(sf::Vector2f(20.f, 20.f), sf::Color(255, 165, 0)); // Orange
+    } else {
+        sprite.setTexture(texture);
+        sprite.setScale(sf::Vector2f(0.5f, 0.5f)); // Small scale for swarm
+        sf::FloatRect bounds = sprite.getLocalBounds();
+        sprite.setOrigin(bounds.width / 2.f, bounds.height / 2.f);
+        sprite.setPosition(worldPosition);
+    }
 }
 
 void SwarmEnemy::updateAI(const sf::Vector2f& playerPos, float deltaTime) {

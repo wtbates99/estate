@@ -11,7 +11,16 @@ GruntEnemy::GruntEnemy() : Enemy() {
     attackCooldown = 1.2f;
     directionChangeInterval = 1.0f;
     
-    initializeShape(sf::Vector2f(40.f, 40.f), sf::Color::Red);
+    // Try to load sprite, fallback to colored rectangle if it fails
+    if (!loadTexture("assets/textures/enemies/grunt.png")) {
+        initializeShape(sf::Vector2f(40.f, 40.f), sf::Color::Red);
+    } else {
+        sprite.setTexture(texture);
+        sprite.setScale(sf::Vector2f(0.8f, 0.8f)); // Scale as needed
+        sf::FloatRect bounds = sprite.getLocalBounds();
+        sprite.setOrigin(bounds.width / 2.f, bounds.height / 2.f);
+        sprite.setPosition(worldPosition);
+    }
 }
 
 void GruntEnemy::updateAI(const sf::Vector2f& playerPos, float deltaTime) {
@@ -28,7 +37,16 @@ ScoutEnemy::ScoutEnemy() : Enemy() {
     attackCooldown = 0.8f;
     directionChangeInterval = 0.5f; // Changes direction more frequently
     
-    initializeShape(sf::Vector2f(25.f, 25.f), sf::Color::Yellow);
+    // Try to load sprite, fallback to colored rectangle if it fails
+    if (!loadTexture("assets/textures/enemies/scout.png")) {
+        initializeShape(sf::Vector2f(25.f, 25.f), sf::Color::Yellow);
+    } else {
+        sprite.setTexture(texture);
+        sprite.setScale(sf::Vector2f(0.6f, 0.6f)); // Smaller scale for scout
+        sf::FloatRect bounds = sprite.getLocalBounds();
+        sprite.setOrigin(bounds.width / 2.f, bounds.height / 2.f);
+        sprite.setPosition(worldPosition);
+    }
 }
 
 void ScoutEnemy::updateAI(const sf::Vector2f& playerPos, float deltaTime) {

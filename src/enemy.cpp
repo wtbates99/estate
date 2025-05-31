@@ -4,6 +4,7 @@
 #include "config.h"
 #include <cmath>
 #include <random>
+#include <iostream>
 
 // Base Enemy class implementation
 Enemy::Enemy() : 
@@ -26,18 +27,48 @@ Enemy::Enemy() :
     targetPosition = worldPosition;
 }
 
+bool Enemy::loadTexture(const std::string& texturePath) {
+    if (!texture.loadFromFile(texturePath)) {
+        std::cerr << "Failed to load texture: " << texturePath << std::endl;
+        return false;
+    }
+    return true;
+}
+
+void Enemy::initializeSprite(const std::string& texturePath, const sf::Vector2f& scale) {
+    if (loadTexture(texturePath)) {
+        sprite.setTexture(texture);
+        sprite.setScale(scale);
+        
+        // Center the origin
+        sf::FloatRect bounds = sprite.getLocalBounds();
+        sprite.setOrigin(bounds.width / 2.f, bounds.height / 2.f);
+        sprite.setPosition(worldPosition);
+    } else {
+        // Fallback to colored rectangle if texture loading fails
+        std::cerr << "Falling back to colored rectangle for enemy" << std::endl;
+        // This will be handled by individual enemy types
+    }
+}
+
 void Enemy::initializeShape(const sf::Vector2f& size, const sf::Color& color) {
-    shape.setFillColor(color);
-    shape.setSize(size);
-    shape.setOrigin(size.x / 2.f, size.y / 2.f);
-    shape.setPosition(worldPosition);
+    // Keep this method for fallback support - convert to sprite-like behavior
+    // Create a simple colored texture programmatically
+    sf::Image image;
+    image.create(static_cast<unsigned int>(size.x), static_cast<unsigned int>(size.y), color);
+    
+    if (texture.loadFromImage(image)) {
+        sprite.setTexture(texture);
+        sprite.setOrigin(size.x / 2.f, size.y / 2.f);
+        sprite.setPosition(worldPosition);
+    }
 }
 
 void Enemy::move(float deltaTime) {
     attackTimer += deltaTime;
     
-    // Update shape position to match world position
-    shape.setPosition(worldPosition);
+    // Update sprite position to match world position
+    sprite.setPosition(worldPosition);
 }
 
 void Enemy::updateAI(const sf::Vector2f& playerPos, float deltaTime) {
@@ -102,7 +133,7 @@ void Enemy::takeDamage(int damage) {
 void Enemy::attack(Player& player) {
     if (attackTimer < attackCooldown) return;
     
-    sf::Vector2f direction = player.getPosition() - shape.getPosition();
+    sf::Vector2f direction = player.getPosition() - sprite.getPosition();
     float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
     
     if (distance < attackRange) {
@@ -116,9 +147,9 @@ bool Enemy::isAlive() const {
 }
 
 void Enemy::draw(sf::RenderWindow& window) const {
-    window.draw(shape);
+    window.draw(sprite);
 }
 
 sf::FloatRect Enemy::getBounds() const {
-    return shape.getGlobalBounds();
+    return sprite.getGlobalBounds();
 }
