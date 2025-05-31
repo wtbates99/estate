@@ -23,6 +23,11 @@ public:
     sf::Vector2f getPosition() const { return sprite.getPosition(); }
     sf::Vector2f getWorldPosition() const { return worldPosition; }
     void updatePosition(const sf::Vector2f& playerPos, const sf::Vector2f& cameraOffset);
+    
+    // Health bar methods
+    void drawHealthBar(sf::RenderWindow& window) const;
+    void setHealthBarVisible(bool visible) { showHealthBar = visible; }
+    bool isHealthBarVisible() const { return showHealthBar; }
 
 protected:
     // Protected members that derived classes can access
@@ -42,6 +47,11 @@ protected:
     // AI state
     float directionChangeTimer;
     float directionChangeInterval;
+    
+    // Health bar properties
+    bool showHealthBar;
+    mutable sf::RectangleShape healthBarBackground;
+    mutable sf::RectangleShape healthBarForeground;
     
     // Helper methods for derived classes
     void moveTowards(const sf::Vector2f& target, float deltaTime);

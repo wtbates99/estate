@@ -16,7 +16,8 @@ Enemy::Enemy() :
     attackCooldown(1.0f),
     attackTimer(0.0f),
     directionChangeTimer(0.0f),
-    directionChangeInterval(1.0f) {
+    directionChangeInterval(1.0f),
+    showHealthBar(true) {
     
     // Initialize world position randomly
     worldPosition = sf::Vector2f(
@@ -25,6 +26,15 @@ Enemy::Enemy() :
     );
     
     targetPosition = worldPosition;
+    
+    // Initialize health bar shapes
+    healthBarBackground.setSize(sf::Vector2f(40.0f, 6.0f));
+    healthBarBackground.setFillColor(sf::Color(50, 50, 50, 200));
+    healthBarBackground.setOutlineThickness(1.0f);
+    healthBarBackground.setOutlineColor(sf::Color::Black);
+    
+    healthBarForeground.setSize(sf::Vector2f(38.0f, 4.0f));
+    healthBarForeground.setFillColor(sf::Color::Green);
 }
 
 bool Enemy::loadTexture(const std::string& texturePath) {
@@ -148,6 +158,45 @@ bool Enemy::isAlive() const {
 
 void Enemy::draw(sf::RenderWindow& window) const {
     window.draw(sprite);
+    
+    // Draw health bar if enabled and enemy is damaged
+    if (showHealthBar && health < maxHealth) {
+        drawHealthBar(window);
+    }
+}
+
+void Enemy::drawHealthBar(sf::RenderWindow& window) const {
+    // Position health bar above the enemy
+    sf::Vector2f enemyPos = sprite.getPosition();
+    sf::FloatRect bounds = sprite.getGlobalBounds();
+    
+    sf::Vector2f healthBarPos(
+        enemyPos.x - healthBarBackground.getSize().x / 2.0f,
+        enemyPos.y - bounds.height / 2.0f - 15.0f
+    );
+    
+    // Draw background
+    healthBarBackground.setPosition(healthBarPos);
+    window.draw(healthBarBackground);
+    
+    // Calculate health percentage and determine color
+    float healthPercentage = static_cast<float>(health) / static_cast<float>(maxHealth);
+    
+    // Color based on health percentage
+    sf::Color healthColor;
+    if (healthPercentage > 0.6f) {
+        healthColor = sf::Color::Green;
+    } else if (healthPercentage > 0.3f) {
+        healthColor = sf::Color::Yellow;
+    } else {
+        healthColor = sf::Color::Red;
+    }
+    
+    // Draw foreground (health bar)
+    healthBarForeground.setFillColor(healthColor);
+    healthBarForeground.setSize(sf::Vector2f(38.0f * healthPercentage, 4.0f));
+    healthBarForeground.setPosition(healthBarPos.x + 1.0f, healthBarPos.y + 1.0f);
+    window.draw(healthBarForeground);
 }
 
 sf::FloatRect Enemy::getBounds() const {
