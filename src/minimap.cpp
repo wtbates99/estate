@@ -1,7 +1,7 @@
 #include "minimap.h"
 #include "config.h"
 
-void Minimap::draw(sf::RenderWindow& window, const Player& player, const std::vector<Enemy>& enemies) {
+void Minimap::draw(sf::RenderWindow& window, const Player& player, const std::vector<std::unique_ptr<Enemy>>& enemies) {
     // Create minimap background
     sf::RectangleShape minimapBackground(sf::Vector2f(Config::MINIMAP_SIZE, Config::MINIMAP_SIZE));
     minimapBackground.setPosition(Config::WINDOW_WIDTH - Config::MINIMAP_SIZE - Config::MINIMAP_PADDING, 
@@ -28,18 +28,20 @@ void Minimap::draw(sf::RenderWindow& window, const Player& player, const std::ve
     // Draw player dot on minimap
     window.draw(playerDot);
     
-    // Draw all enemy dots on minimap
+    // Draw all alive enemy dots on minimap
     for (const auto& enemy : enemies) {
-        sf::CircleShape enemyDot(Config::MINIMAP_ENEMY_SIZE);
-        enemyDot.setFillColor(sf::Color::Red);
-        enemyDot.setOrigin(Config::MINIMAP_ENEMY_SIZE, Config::MINIMAP_ENEMY_SIZE); // Center the origin
-        sf::Vector2f enemyPos = enemy.getWorldPosition();
-        enemyDot.setPosition(
-            Config::WINDOW_WIDTH - Config::MINIMAP_SIZE - Config::MINIMAP_PADDING + 
-            (enemyPos.x * Config::MINIMAP_SCALE),
-            Config::MINIMAP_PADDING + 
-            (enemyPos.y * Config::MINIMAP_SCALE)
-        );
-        window.draw(enemyDot);
+        if (enemy->isAlive()) {
+            sf::CircleShape enemyDot(Config::MINIMAP_ENEMY_SIZE);
+            enemyDot.setFillColor(sf::Color::Red);
+            enemyDot.setOrigin(Config::MINIMAP_ENEMY_SIZE, Config::MINIMAP_ENEMY_SIZE); // Center the origin
+            sf::Vector2f enemyPos = enemy->getWorldPosition();
+            enemyDot.setPosition(
+                Config::WINDOW_WIDTH - Config::MINIMAP_SIZE - Config::MINIMAP_PADDING + 
+                (enemyPos.x * Config::MINIMAP_SCALE),
+                Config::MINIMAP_PADDING + 
+                (enemyPos.y * Config::MINIMAP_SCALE)
+            );
+            window.draw(enemyDot);
+        }
     }
 } 

@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
+#include <memory>
 #include "player.h"
 #include "enemy.h"
 #include "config.h"
@@ -25,24 +26,11 @@ int main() {
 
     // Create a player and enemies
     Player main_player;
-    std::vector<Enemy> enemies;
+    std::vector<std::unique_ptr<Enemy>> enemies;
     
-    // Create a mix of different enemy types
+    // Create a mix of different enemy types using the factory
     for (int i = 0; i < 15; i++) {
-        EnemyType type;
-        int typeRoll = rand() % 100;
-        
-        if (typeRoll < 40) {
-            type = EnemyType::GRUNT;     // 40% chance
-        } else if (typeRoll < 60) {
-            type = EnemyType::SCOUT;     // 20% chance
-        } else if (typeRoll < 80) {
-            type = EnemyType::BRUTE;     // 20% chance
-        } else {
-            type = EnemyType::ASSASSIN;  // 20% chance
-        }
-        
-        enemies.push_back(Enemy(type));
+        enemies.push_back(createRandomEnemy());
     }
 
     // Set initial view center to player position
@@ -91,8 +79,11 @@ int main() {
         
         // Update all enemies
         for (auto& enemy : enemies) {
-            enemy.move(deltaTime);
-            enemy.updatePosition(main_player.getWorldPosition(), sf::Vector2f(0, 0));
+            if (enemy->isAlive()) {
+                enemy->updateAI(main_player.getWorldPosition(), deltaTime);
+                enemy->move(deltaTime);
+                enemy->updatePosition(main_player.getWorldPosition(), sf::Vector2f(0, 0));
+            }
         }
 
         // Update view to follow player
@@ -101,8 +92,8 @@ int main() {
 
         // Check for collision between player and enemies
         for (auto& enemy : enemies) {
-            if (main_player.getBounds().intersects(enemy.getBounds())) {
-                enemy.attack(main_player);
+            if (enemy->isAlive() && main_player.getBounds().intersects(enemy->getBounds())) {
+                enemy->attack(main_player);
             }
         }
 
@@ -115,7 +106,9 @@ int main() {
         // Draw game objects
         main_player.draw(window);
         for (const auto& enemy : enemies) {
-            enemy.draw(window);
+            if (enemy->isAlive()) {
+                enemy->draw(window);
+            }
         }
 
         // Draw debug information in game view
@@ -130,12 +123,14 @@ int main() {
                 window.draw(playerBox);
 
                 for (const auto& enemy : enemies) {
-                    sf::RectangleShape enemyBox(enemy.getBounds().getSize());
-                    enemyBox.setPosition(enemy.getBounds().getPosition());
-                    enemyBox.setFillColor(sf::Color::Transparent);
-                    enemyBox.setOutlineColor(sf::Color::Red);
-                    enemyBox.setOutlineThickness(1);
-                    window.draw(enemyBox);
+                    if (enemy->isAlive()) {
+                        sf::RectangleShape enemyBox(enemy->getBounds().getSize());
+                        enemyBox.setPosition(enemy->getBounds().getPosition());
+                        enemyBox.setFillColor(sf::Color::Transparent);
+                        enemyBox.setOutlineColor(sf::Color::Red);
+                        enemyBox.setOutlineThickness(1);
+                        window.draw(enemyBox);
+                    }
                 }
             }
         }
@@ -145,23 +140,14 @@ int main() {
         Minimap::draw(window, main_player, enemies);
 
         if (Config::DEBUG_MODE && Config::SHOW_FPS) {
-            // Count enemy types for debug display
-            int gruntCount = 0, scoutCount = 0, bruteCount = 0, assassinCount = 0;
+            // Count alive enemies for debug display
+            int aliveCount = 0;
             for (const auto& enemy : enemies) {
-                if (!enemy.isAlive()) continue;
-                switch (enemy.getType()) {
-                    case EnemyType::GRUNT: gruntCount++; break;
-                    case EnemyType::SCOUT: scoutCount++; break;
-                    case EnemyType::BRUTE: bruteCount++; break;
-                    case EnemyType::ASSASSIN: assassinCount++; break;
-                }
+                if (enemy->isAlive()) aliveCount++;
             }
             
             std::string debugInfo = "FPS: " + std::to_string(static_cast<int>(fps)) + "\n";
-            debugInfo += "Enemies - Grunt:" + std::to_string(gruntCount) + 
-                        " Scout:" + std::to_string(scoutCount) + 
-                        " Brute:" + std::to_string(bruteCount) + 
-                        " Assassin:" + std::to_string(assassinCount);
+            debugInfo += "Alive Enemies: " + std::to_string(aliveCount);
             
             debugText.setString(debugInfo);
             debugText.setPosition(10, 10);
