@@ -44,3 +44,61 @@ The current textures are colorful placeholders with text labels. To replace them
 ## Fallback System
 
 If a texture file is missing or fails to load, the game will automatically fall back to colored rectangles matching the original design colors. 
+
+## 🎯 Key Features
+
+### **Multi-Background System**
+- **7 Background Options**: Forest, Desert, Ocean, Mountains, City, Space, and Custom
+- **Interactive Selection Menu**: Navigate with arrow keys, select with Enter
+- **Factory Pattern**: Easily extensible for adding new backgrounds
+- **Real-time Switching**: Press 'B' during gameplay to change backgrounds
+
+### **Professional Architecture**
+- **Similar to Enemies/Weapons**: Follows the same factory pattern you're already using
+- **Smart Pointers**: Proper memory management
+- **Fallback System**: Game continues even if backgrounds fail to load
+- **Error Handling**: Graceful degradation with console logging
+
+### **User Experience**
+- **Visual Menu**: Descriptions for each background option
+- **Flexible Controls**: Enter to select, Escape for random
+- **Easy Setup**: Just drop PNG files in the backgrounds directory
+
+## 📁 File Structure Created
+
+```
+src/
+├── background_menu.h/.cpp          # Selection menu system
+└── backgrounds/
+    ├── background_types.h/.cpp     # Background definitions
+    └── background_factory.h/.cpp   # Factory for creating backgrounds
+
+assets/
+└── backgrounds/                    # Where you place your images
+    └── README.md                   # Instructions for users
+```
+
+## 🎮 How to Use
+
+1. **Place your 5000x5000 background images** in `assets/backgrounds/` with names like:
+   - `forest.png`, `desert.png`, `ocean.png`, etc.
+   - Your custom background goes in `assets/background.png`
+
+2. **Build and run**:
+   ```bash
+   ./build.sh
+   ./build/estate
+   ```
+
+3. **Select your background** from the menu that appears when you start the game
+
+4. **Switch backgrounds** anytime during gameplay by pressing 'B'
+
+## 🔧 Easy to Extend
+
+Adding new backgrounds is simple:
+1. Add the background type to the enum
+2. Add the background info to the list
+3. Drop the image file in the backgrounds directory
+
+The system is fully integrated with your existing game architecture and maintains the same coding patterns as your enemies and weapons systems! 

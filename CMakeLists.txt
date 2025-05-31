@@ -15,6 +15,10 @@ set(SOURCES
     src/enemy.cpp
     src/weapon.cpp
     src/minimap.cpp
+    src/background.cpp
+    src/background_menu.cpp
+    src/backgrounds/background_types.cpp
+    src/backgrounds/background_factory.cpp
     src/enemies/basic_enemies.cpp
     src/enemies/combat_enemies.cpp
     src/enemies/special_enemies.cpp
@@ -30,6 +34,10 @@ set(HEADERS
     src/enemy.h
     src/weapon.h
     src/minimap.h
+    src/background.h
+    src/background_menu.h
+    src/backgrounds/background_types.h
+    src/backgrounds/background_factory.h
     src/enemies/basic_enemies.h
     src/enemies/combat_enemies.h
     src/enemies/special_enemies.h
