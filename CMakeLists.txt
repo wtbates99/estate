@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(SFML 2.5 COMPONENTS graphics window system REQUIRED)
 
 # Add executable
-add_executable(estate src/main.cpp)
+add_executable(estate src/main.cpp src/player.cpp src/enemy.cpp)
 
 # Link SFML libraries
 target_link_libraries(estate PRIVATE sfml-graphics sfml-window sfml-system)
