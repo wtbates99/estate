@@ -7,6 +7,7 @@ public:
     Sword();
     void loadAssets();
     void draw(sf::RenderWindow& window, const sf::Vector2f& playerPos) const override;
+    std::string getName() const override { return "Sword"; }
 
 private:
     sf::Texture weaponTexture_;
@@ -19,6 +20,7 @@ public:
     Dagger();
     void loadAssets();
     void draw(sf::RenderWindow& window, const sf::Vector2f& playerPos) const override;
+    std::string getName() const override { return "Dagger"; }
 
 private:
     sf::Texture weaponTexture_;

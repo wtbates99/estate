@@ -170,10 +170,8 @@ void Player::draw(sf::RenderWindow& window) {
         weaponText.setCharacterSize(16);
         weaponText.setFillColor(sf::Color::Cyan);
         
-        std::string weaponInfo = "Weapon: " + std::to_string(currentWeaponIndex_ + 1) + "/" + std::to_string(weapons_.size());
-        weaponInfo += " (";
-        weaponInfo += (getCurrentWeapon()->getType() == Weapon::Type::MELEE ? "Melee" : "Ranged");
-        weaponInfo += ")";
+        std::string weaponInfo = "Weapon: " + getCurrentWeapon()->getName();
+        weaponInfo += " (" + std::to_string(currentWeaponIndex_ + 1) + "/" + std::to_string(weapons_.size()) + ")";
         weaponText.setString(weaponInfo);
         
         // Position weapon text below health

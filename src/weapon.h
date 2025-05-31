@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <memory>
+#include <string>
 
 // Forward declarations
 class Enemy;
@@ -22,6 +23,7 @@ public:
     virtual void attack(const sf::Vector2f& playerPos, const std::vector<std::unique_ptr<Enemy>>& enemies) = 0;
     virtual void draw(sf::RenderWindow& window, const sf::Vector2f& playerPos) const = 0;
     virtual void update(float deltaTime) = 0;
+    virtual std::string getName() const = 0;
 
     // Common weapon properties
     Type getType() const { return type_; }
