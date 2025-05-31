@@ -10,6 +10,7 @@ public:
     void addGold(int amount);
     bool isAlive() const;
     void draw(sf::RenderWindow& window);
+    sf::FloatRect getBounds() const { return shape.getGlobalBounds(); }
 
 private:
     int health;
@@ -18,4 +19,6 @@ private:
     int gold;
     int speed;
     sf::RectangleShape shape;
+    sf::Text healthText;
+    sf::Font font;
 }; 

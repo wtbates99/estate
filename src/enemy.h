@@ -10,6 +10,7 @@ public:
     void attack(Player& player);
     bool isAlive() const;
     void draw(sf::RenderWindow& window);
+    sf::FloatRect getBounds() const;
 
 private:
     int health;
