@@ -48,69 +48,6 @@ protected:
     void initializeShape(const sf::Vector2f& size, const sf::Color& color);
 };
 
-// Specific enemy types
-class GruntEnemy : public Enemy {
-public:
-    GruntEnemy();
-    void updateAI(const sf::Vector2f& playerPos, float deltaTime) override;
-};
-
-class ScoutEnemy : public Enemy {
-public:
-    ScoutEnemy();
-    void updateAI(const sf::Vector2f& playerPos, float deltaTime) override;
-    void move(float deltaTime) override;
-};
-
-class BruteEnemy : public Enemy {
-public:
-    BruteEnemy();
-    void updateAI(const sf::Vector2f& playerPos, float deltaTime) override;
-    void attack(Player& player) override;
-private:
-    float chargeSpeed;
-    bool isCharging;
-};
-
-class AssassinEnemy : public Enemy {
-public:
-    AssassinEnemy();
-    void updateAI(const sf::Vector2f& playerPos, float deltaTime) override;
-    void draw(sf::RenderWindow& window) const override;
-private:
-    float stealthTimer;
-    bool isStealthed;
-    static constexpr float STEALTH_DURATION = 3.0f;
-    static constexpr float STEALTH_COOLDOWN = 8.0f;
-};
-
-// Example of how easy it is to add new enemy types
-class SniperEnemy : public Enemy {
-public:
-    SniperEnemy();
-    void updateAI(const sf::Vector2f& playerPos, float deltaTime) override;
-    void attack(Player& player) override;
-private:
-    float aimTimer;
-    bool isAiming;
-    static constexpr float AIM_TIME = 2.0f;
-    static constexpr float SNIPE_RANGE = 200.0f;
-};
-
-class SwarmEnemy : public Enemy {
-public:
-    SwarmEnemy();
-    void updateAI(const sf::Vector2f& playerPos, float deltaTime) override;
-    void move(float deltaTime) override;
-private:
-    float swarmRadius;
-    sf::Vector2f swarmCenter;
-    float orbitAngle;
-};
-
-// Factory function for creating enemies
-std::unique_ptr<Enemy> createRandomEnemy();
-
 // Legacy enum for compatibility (can be removed later)
 enum class EnemyType {
     GRUNT, SCOUT, BRUTE, ASSASSIN, SNIPER, SWARM

@@ -2,7 +2,7 @@
 #include <vector>
 #include <memory>
 #include "player.h"
-#include "enemy.h"
+#include "enemies/enemy_factory.h"
 #include "config.h"
 #include "minimap.h"
 

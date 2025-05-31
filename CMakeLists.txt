@@ -14,6 +14,10 @@ set(SOURCES
     src/player.cpp
     src/enemy.cpp
     src/minimap.cpp
+    src/enemies/basic_enemies.cpp
+    src/enemies/combat_enemies.cpp
+    src/enemies/special_enemies.cpp
+    src/enemies/enemy_factory.cpp
 )
 
 # Add header files
@@ -21,6 +25,10 @@ set(HEADERS
     src/player.h
     src/enemy.h
     src/minimap.h
+    src/enemies/basic_enemies.h
+    src/enemies/combat_enemies.h
+    src/enemies/special_enemies.h
+    src/enemies/enemy_factory.h
 )
 
 # Create executable
