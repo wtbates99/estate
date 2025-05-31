@@ -4,14 +4,34 @@
 #include "config.h"
 #include <cmath>
 
-Enemy::Enemy() : 
-    health(Config::ENEMY_START_HEALTH), 
-    speed(Config::ENEMY_SPEED), 
-    damage(Config::ENEMY_DAMAGE),
+Enemy::Enemy(EnemyType enemyType) : 
+    type(enemyType),
     directionChangeTimer(0.0f) {
-    shape.setFillColor(sf::Color::Red);
-    shape.setSize(sf::Vector2f(100.f, 100.f));
-    shape.setOrigin(50.f, 50.f);
+    
+    // Initialize stats based on enemy type
+    initializeStats();
+    
+    // Set shape properties based on type
+    switch (type) {
+        case EnemyType::GRUNT:
+            shape.setFillColor(sf::Color::Red);
+            shape.setSize(sf::Vector2f(40.f, 40.f));
+            break;
+        case EnemyType::SCOUT:
+            shape.setFillColor(sf::Color::Yellow);
+            shape.setSize(sf::Vector2f(25.f, 25.f));
+            break;
+        case EnemyType::BRUTE:
+            shape.setFillColor(sf::Color(139, 69, 19)); // Brown
+            shape.setSize(sf::Vector2f(60.f, 60.f));
+            break;
+        case EnemyType::ASSASSIN:
+            shape.setFillColor(sf::Color::Magenta);
+            shape.setSize(sf::Vector2f(30.f, 30.f));
+            break;
+    }
+    
+    shape.setOrigin(shape.getSize().x / 2.f, shape.getSize().y / 2.f);
     
     // Initialize world position randomly in the world
     worldPosition = sf::Vector2f(
@@ -22,6 +42,35 @@ Enemy::Enemy() :
     
     // Set initial target position
     targetPosition = worldPosition;
+}
+
+void Enemy::initializeStats() {
+    switch (type) {
+        case EnemyType::GRUNT:
+            health = 80;
+            speed = 150;
+            damage = 10;
+            attackRange = 45.0f;
+            break;
+        case EnemyType::SCOUT:
+            health = 40;
+            speed = 280;
+            damage = 8;
+            attackRange = 35.0f;
+            break;
+        case EnemyType::BRUTE:
+            health = 150;
+            speed = 80;
+            damage = 25;
+            attackRange = 70.0f;
+            break;
+        case EnemyType::ASSASSIN:
+            health = 60;
+            speed = 220;
+            damage = 20;
+            attackRange = 25.0f;
+            break;
+    }
 }
 
 void Enemy::move(float deltaTime) {
@@ -84,7 +133,7 @@ void Enemy::attack(Player& player) {
     sf::Vector2f direction = player.getPosition() - shape.getPosition();
     float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
     
-    if (distance < 50.0f) { // Attack range of 50 pixels
+    if (distance < attackRange) {
         player.takeDamage(damage);
     }
 }

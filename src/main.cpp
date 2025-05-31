@@ -26,8 +26,23 @@ int main() {
     // Create a player and enemies
     Player main_player;
     std::vector<Enemy> enemies;
-    for (int i = 0; i < 10; i++) {
-        enemies.push_back(Enemy());
+    
+    // Create a mix of different enemy types
+    for (int i = 0; i < 15; i++) {
+        EnemyType type;
+        int typeRoll = rand() % 100;
+        
+        if (typeRoll < 40) {
+            type = EnemyType::GRUNT;     // 40% chance
+        } else if (typeRoll < 60) {
+            type = EnemyType::SCOUT;     // 20% chance
+        } else if (typeRoll < 80) {
+            type = EnemyType::BRUTE;     // 20% chance
+        } else {
+            type = EnemyType::ASSASSIN;  // 20% chance
+        }
+        
+        enemies.push_back(Enemy(type));
     }
 
     // Set initial view center to player position
@@ -130,7 +145,25 @@ int main() {
         Minimap::draw(window, main_player, enemies);
 
         if (Config::DEBUG_MODE && Config::SHOW_FPS) {
-            debugText.setString("FPS: " + std::to_string(static_cast<int>(fps)));
+            // Count enemy types for debug display
+            int gruntCount = 0, scoutCount = 0, bruteCount = 0, assassinCount = 0;
+            for (const auto& enemy : enemies) {
+                if (!enemy.isAlive()) continue;
+                switch (enemy.getType()) {
+                    case EnemyType::GRUNT: gruntCount++; break;
+                    case EnemyType::SCOUT: scoutCount++; break;
+                    case EnemyType::BRUTE: bruteCount++; break;
+                    case EnemyType::ASSASSIN: assassinCount++; break;
+                }
+            }
+            
+            std::string debugInfo = "FPS: " + std::to_string(static_cast<int>(fps)) + "\n";
+            debugInfo += "Enemies - Grunt:" + std::to_string(gruntCount) + 
+                        " Scout:" + std::to_string(scoutCount) + 
+                        " Brute:" + std::to_string(bruteCount) + 
+                        " Assassin:" + std::to_string(assassinCount);
+            
+            debugText.setString(debugInfo);
             debugText.setPosition(10, 10);
             window.draw(debugText);
         }
