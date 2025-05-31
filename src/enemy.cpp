@@ -93,7 +93,7 @@ bool Enemy::isAlive() const {
     return health > 0;
 }
 
-void Enemy::draw(sf::RenderWindow& window) {
+void Enemy::draw(sf::RenderWindow& window) const {
     window.draw(shape);
 }
 

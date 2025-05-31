@@ -9,7 +9,7 @@ public:
     void takeDamage(int damage);
     void attack(Player& player);
     bool isAlive() const;
-    void draw(sf::RenderWindow& window);
+    void draw(sf::RenderWindow& window) const;
     sf::FloatRect getBounds() const;
     void updatePosition(const sf::Vector2f& playerPos, const sf::Vector2f& cameraOffset);
     sf::Vector2f getPosition() const { return shape.getPosition(); }

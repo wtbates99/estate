@@ -1,10 +1,11 @@
 #include <SFML/Graphics.hpp>
+#include <vector>
 #include "player.h"
 #include "enemy.h"
 #include "config.h"
 
 // Helper function to draw the minimap
-void drawMinimap(sf::RenderWindow& window, const Player& player, const Enemy& enemy) {
+void drawMinimap(sf::RenderWindow& window, const Player& player, const std::vector<Enemy>& enemies) {
     // Create minimap background
     sf::RectangleShape minimapBackground(sf::Vector2f(Config::MINIMAP_SIZE, Config::MINIMAP_SIZE));
     minimapBackground.setPosition(Config::WINDOW_WIDTH - Config::MINIMAP_SIZE - Config::MINIMAP_PADDING, 
@@ -28,21 +29,23 @@ void drawMinimap(sf::RenderWindow& window, const Player& player, const Enemy& en
         (playerPos.y * Config::MINIMAP_SCALE)
     );
     
-    // Calculate enemy position on minimap
-    sf::CircleShape enemyDot(Config::MINIMAP_ENEMY_SIZE);
-    enemyDot.setFillColor(sf::Color::Red);
-    enemyDot.setOrigin(Config::MINIMAP_ENEMY_SIZE, Config::MINIMAP_ENEMY_SIZE); // Center the origin
-    sf::Vector2f enemyPos = enemy.getWorldPosition();
-    enemyDot.setPosition(
-        Config::WINDOW_WIDTH - Config::MINIMAP_SIZE - Config::MINIMAP_PADDING + 
-        (enemyPos.x * Config::MINIMAP_SCALE),
-        Config::MINIMAP_PADDING + 
-        (enemyPos.y * Config::MINIMAP_SCALE)
-    );
-    
-    // Draw dots on minimap
+    // Draw player dot on minimap
     window.draw(playerDot);
-    window.draw(enemyDot);
+    
+    // Draw all enemy dots on minimap
+    for (const auto& enemy : enemies) {
+        sf::CircleShape enemyDot(Config::MINIMAP_ENEMY_SIZE);
+        enemyDot.setFillColor(sf::Color::Red);
+        enemyDot.setOrigin(Config::MINIMAP_ENEMY_SIZE, Config::MINIMAP_ENEMY_SIZE); // Center the origin
+        sf::Vector2f enemyPos = enemy.getWorldPosition();
+        enemyDot.setPosition(
+            Config::WINDOW_WIDTH - Config::MINIMAP_SIZE - Config::MINIMAP_PADDING + 
+            (enemyPos.x * Config::MINIMAP_SCALE),
+            Config::MINIMAP_PADDING + 
+            (enemyPos.y * Config::MINIMAP_SCALE)
+        );
+        window.draw(enemyDot);
+    }
 }
 
 int main() {
@@ -63,9 +66,12 @@ int main() {
     int frameCount = 0;
     float fps = 0;
 
-    // Create a player and enemy
+    // Create a player and enemies
     Player main_player;
-    Enemy enemy;
+    std::vector<Enemy> enemies;
+    for (int i = 0; i < 10; i++) {
+        enemies.push_back(Enemy());
+    }
 
     // Set initial view center to player position
     view.setCenter(main_player.getWorldPosition());
@@ -110,18 +116,22 @@ int main() {
         // Update game state
         main_player.move(deltaTime);
         main_player.wrapPosition();  // Handle world wrapping
-        enemy.move(deltaTime);
         
-        // Update enemy AI targeting
-        enemy.updatePosition(main_player.getWorldPosition(), sf::Vector2f(0, 0));
+        // Update all enemies
+        for (auto& enemy : enemies) {
+            enemy.move(deltaTime);
+            enemy.updatePosition(main_player.getWorldPosition(), sf::Vector2f(0, 0));
+        }
 
         // Update view to follow player
         view.setCenter(main_player.getWorldPosition());
         window.setView(view);
 
-        // Check for collision between player and enemy
-        if (main_player.getBounds().intersects(enemy.getBounds())) {
-            enemy.attack(main_player);
+        // Check for collision between player and enemies
+        for (auto& enemy : enemies) {
+            if (main_player.getBounds().intersects(enemy.getBounds())) {
+                enemy.attack(main_player);
+            }
         }
 
         // Clear the window
@@ -132,7 +142,9 @@ int main() {
 
         // Draw game objects
         main_player.draw(window);
-        enemy.draw(window);
+        for (const auto& enemy : enemies) {
+            enemy.draw(window);
+        }
 
         // Draw debug information in game view
         if (Config::DEBUG_MODE) {
@@ -145,18 +157,20 @@ int main() {
                 playerBox.setOutlineThickness(1);
                 window.draw(playerBox);
 
-                sf::RectangleShape enemyBox(enemy.getBounds().getSize());
-                enemyBox.setPosition(enemy.getBounds().getPosition());
-                enemyBox.setFillColor(sf::Color::Transparent);
-                enemyBox.setOutlineColor(sf::Color::Red);
-                enemyBox.setOutlineThickness(1);
-                window.draw(enemyBox);
+                for (const auto& enemy : enemies) {
+                    sf::RectangleShape enemyBox(enemy.getBounds().getSize());
+                    enemyBox.setPosition(enemy.getBounds().getPosition());
+                    enemyBox.setFillColor(sf::Color::Transparent);
+                    enemyBox.setOutlineColor(sf::Color::Red);
+                    enemyBox.setOutlineThickness(1);
+                    window.draw(enemyBox);
+                }
             }
         }
 
         // Switch to UI view for minimap and FPS
         window.setView(uiView);
-        drawMinimap(window, main_player, enemy);
+        drawMinimap(window, main_player, enemies);
 
         if (Config::DEBUG_MODE && Config::SHOW_FPS) {
             debugText.setString("FPS: " + std::to_string(static_cast<int>(fps)));
