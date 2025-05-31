@@ -1,0 +1,35 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Configuration System
+
+All game settings are centralized in [config.h](mdc:src/config.h) using a `Config` namespace with `constexpr` values.
+
+## Debug Settings
+
+```cpp
+constexpr bool DEBUG_MODE = true;           // Master debug toggle
+constexpr bool SHOW_FPS = true;             // Display FPS counter
+constexpr bool SHOW_COLLISION_BOXES = true; // Visualize collision boundaries
+```
+
+## Game Balance
+
+- **Player**: Health (100), Speed (200.0f) 
+- **Enemies**: Health (100), Speed (200.0f), Damage (10)
+- **World**: 5000x5000 units with wrapping boundaries
+
+## Display Settings
+
+- **Window**: 800x600 pixels, 60 FPS limit
+- **Minimap**: 150x150 pixels, positioned top-right with 10px padding
+- **Scaling**: Minimap uses 0.03f scale factor to fit the world
+
+## Modifying Settings
+
+To change game behavior:
+1. Edit values in [config.h](mdc:src/config.h)
+2. Rebuild with `./build.sh`
+3. No source code changes needed elsewhere - all components reference Config namespace

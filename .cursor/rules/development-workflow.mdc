@@ -1,0 +1,57 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Development Workflow
+
+## Build Process
+
+### Requirements
+- **SFML 2.5+**: Graphics, Window, and System modules
+- **CMake 3.10+**: Build system
+- **C++17**: Language standard
+- **Arial Font**: `assets/ARIAL.TTF` (copied to build directory)
+
+### Building
+```bash
+./build.sh  # Configures CMake and builds the project
+```
+
+The build script:
+1. Runs CMake configuration
+2. Compiles all source files
+3. Links SFML libraries
+4. Copies font assets
+5. Creates executable in build directory
+
+## Debug Features
+
+Debug mode is controlled by [config.h](mdc:src/config.h) settings:
+
+### FPS Display
+- **Toggle**: `Config::SHOW_FPS`
+- **Location**: Top-left corner
+- **Purpose**: Performance monitoring
+
+### Collision Visualization
+- **Toggle**: `Config::SHOW_COLLISION_BOXES` 
+- **Display**: Green boxes around player, red around enemies
+- **Purpose**: Debug collision detection issues
+
+### Controls
+- **Arrow Keys**: Player movement
+- **Escape**: Exit game
+- **Window Close**: Standard exit
+
+## Adding New Features
+
+### New Game Object
+1. Create header/source files following the pattern of [player.h](mdc:src/player.h)/[player.cpp](mdc:src/player.cpp)
+2. Add files to `CMakeLists.txt` SOURCES and HEADERS
+3. Include in [main.cpp](mdc:src/main.cpp) game loop
+4. Add configuration constants to [config.h](mdc:src/config.h)
+
+### New UI Element
+- Follow the [minimap.h](mdc:src/minimap.h) pattern with static class methods
+- Draw in UI view section of main loop

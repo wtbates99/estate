@@ -13,12 +13,14 @@ set(SOURCES
     src/main.cpp
     src/player.cpp
     src/enemy.cpp
+    src/minimap.cpp
 )
 
 # Add header files
 set(HEADERS
     src/player.h
     src/enemy.h
+    src/minimap.h
 )
 
 # Create executable

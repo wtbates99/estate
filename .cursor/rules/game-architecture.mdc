@@ -1,0 +1,43 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Game Architecture Patterns
+
+## Coordinate Systems
+
+The game uses a **dual coordinate system**:
+
+### World Coordinates
+- **Purpose**: Absolute positions in the game world (0 to 5000x5000)
+- **Storage**: `worldPosition` member in Player and Enemy classes
+- **Usage**: AI pathfinding, collision detection, minimap rendering
+
+### Screen Coordinates  
+- **Purpose**: Relative to camera/view for rendering
+- **Calculation**: `worldPosition - cameraOffset` 
+- **Usage**: Drawing sprites and UI elements
+
+## Component Separation
+
+### Player ([player.h](mdc:src/player.h), [player.cpp](mdc:src/player.cpp))
+- **Responsibilities**: Movement input, health management, experience system
+- **Key Methods**: `move()`, `takeDamage()`, `wrapPosition()`
+- **Rendering**: Self-contained with health text overlay
+
+### Enemy ([enemy.h](mdc:src/enemy.h), [enemy.cpp](mdc:src/enemy.cpp))
+- **Responsibilities**: AI behavior, pathfinding, combat
+- **AI Logic**: 70% chase player, 30% random movement, direction changes every 1 second
+- **Key Methods**: `move()`, `updatePosition()`, `attack()`
+
+### Minimap ([minimap.h](mdc:src/minimap.h), [minimap.cpp](mdc:src/minimap.cpp))
+- **Design**: Static class with single `draw()` method
+- **Coordinates**: Converts world positions to minimap pixel positions
+- **Recently Refactored**: Extracted from [main.cpp](mdc:src/main.cpp) for better organization
+
+## View Management
+
+The game uses **two SFML views**:
+1. **Game View**: Follows player, used for world objects
+2. **UI View**: Fixed position, used for minimap and debug text

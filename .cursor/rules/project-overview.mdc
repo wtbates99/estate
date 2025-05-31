@@ -1,0 +1,31 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Estate Game Project Overview
+
+Estate is a 2D top-down game built with C++ and SFML (Simple and Fast Multimedia Library). This is a development build with debug features enabled.
+
+## Project Structure
+
+The main entry point is [main.cpp](mdc:src/main.cpp), which contains the game loop, window management, and coordinates all game systems.
+
+### Core Game Components
+
+- **Player System**: [player.h](mdc:src/player.h) and [player.cpp](mdc:src/player.cpp) - Handles player movement, health, experience, and rendering
+- **Enemy System**: [enemy.h](mdc:src/enemy.h) and [enemy.cpp](mdc:src/enemy.cpp) - AI-driven enemies that chase the player and attack
+- **Minimap System**: [minimap.h](mdc:src/minimap.h) and [minimap.cpp](mdc:src/minimap.cpp) - Real-time minimap showing player and enemy positions
+- **Configuration**: [config.h](mdc:src/config.h) - Centralized game settings and constants
+
+## Key Features
+
+- **World System**: Large 5000x5000 world with wrapping boundaries
+- **Camera System**: Follows the player with smooth movement
+- **Collision Detection**: Player-enemy collision with damage system
+- **Debug Tools**: FPS counter, collision box visualization, configurable debug modes
+- **Minimap**: Top-right corner overview of the entire game world
+
+## Build System
+
+The project uses CMake with SFML dependencies. Build with `./build.sh` script.
