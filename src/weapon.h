@@ -56,7 +56,7 @@ public:
     void draw(sf::RenderWindow& window, const sf::Vector2f& playerPos) const override;
     void update(float deltaTime) override;
 
-private:
+protected:
     float swingDuration_;
     float swingTimer_;
     bool isSwinging_;
@@ -76,7 +76,7 @@ public:
     // Public method for updating projectiles with enemy collision
     void updateProjectiles(float deltaTime, const std::vector<std::unique_ptr<Enemy>>& enemies);
 
-private:
+protected:
     struct Projectile {
         sf::Vector2f position;
         sf::Vector2f velocity;
@@ -91,25 +91,4 @@ private:
     std::vector<Projectile> projectiles_;
     
     void checkProjectileCollisions(const std::vector<std::unique_ptr<Enemy>>& enemies);
-};
-
-// Specific weapon implementations
-class Sword : public MeleeWeapon {
-public:
-    Sword() : MeleeWeapon(25, 0.8f, 60.0f, 0.3f) {}
-};
-
-class Dagger : public MeleeWeapon {
-public:
-    Dagger() : MeleeWeapon(15, 0.5f, 45.0f, 0.2f) {}
-};
-
-class Bow : public RangedWeapon {
-public:
-    Bow() : RangedWeapon(20, 1.0f, 250.0f, 350.0f) {}
-};
-
-class Crossbow : public RangedWeapon {
-public:
-    Crossbow() : RangedWeapon(35, 1.5f, 300.0f, 500.0f) {}
 }; 

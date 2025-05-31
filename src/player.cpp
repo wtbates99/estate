@@ -3,6 +3,7 @@
 #include "player.h"
 #include "config.h"
 #include "enemy.h"
+#include "weapons/weapon_factory.h"
 
 Player::Player() : 
     health(Config::PLAYER_START_HEALTH), 
@@ -28,11 +29,11 @@ Player::Player() :
     healthText.setCharacterSize(20);
     healthText.setFillColor(sf::Color::White);
 
-    // Initialize with default weapons
-    weapons_.push_back(std::make_unique<Sword>());
-    weapons_.push_back(std::make_unique<Bow>());
-    weapons_.push_back(std::make_unique<Dagger>());
-    weapons_.push_back(std::make_unique<Crossbow>());
+    // Initialize with default weapons using the factory
+    weapons_.push_back(createSword());
+    weapons_.push_back(createBow());
+    weapons_.push_back(createDagger());
+    weapons_.push_back(createCrossbow());
 }
 
 void Player::move(float deltaTime) {

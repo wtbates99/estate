@@ -19,6 +19,9 @@ set(SOURCES
     src/enemies/combat_enemies.cpp
     src/enemies/special_enemies.cpp
     src/enemies/enemy_factory.cpp
+    src/weapons/melee_weapons.cpp
+    src/weapons/ranged_weapons.cpp
+    src/weapons/weapon_factory.cpp
 )
 
 # Add header files
@@ -31,6 +34,9 @@ set(HEADERS
     src/enemies/combat_enemies.h
     src/enemies/special_enemies.h
     src/enemies/enemy_factory.h
+    src/weapons/melee_weapons.h
+    src/weapons/ranged_weapons.h
+    src/weapons/weapon_factory.h
 )
 
 # Create executable
