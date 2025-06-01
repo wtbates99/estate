@@ -5,7 +5,19 @@ project(estate)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Find SFML
+# Help CMake find SFML on macOS (Homebrew) and Linux
+if(APPLE)
+    # macOS: Point to Homebrew's sfml@2
+    set(CMAKE_PREFIX_PATH "/opt/homebrew/opt/sfml@2;/usr/local/opt/sfml@2" ${CMAKE_PREFIX_PATH})
+elseif(UNIX AND NOT APPLE)
+    # Linux: Use pkg-config or standard paths
+    find_package(PkgConfig)
+    if(PKG_CONFIG_FOUND)
+        pkg_check_modules(SFML sfml-all>=2.5)
+    endif()
+endif()
+
+# Find SFML (fall back to find_package if pkg-config not used)
 find_package(SFML 2.5 COMPONENTS graphics window system REQUIRED)
 
 # Add source files
@@ -51,7 +63,7 @@ set(HEADERS
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 
 # Link SFML libraries
-target_link_libraries(${PROJECT_NAME} sfml-graphics sfml-window sfml-system)
+target_link_libraries(${PROJECT_NAME} PRIVATE sfml-graphics sfml-window sfml-system)
 
 # Include directories
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/src)
