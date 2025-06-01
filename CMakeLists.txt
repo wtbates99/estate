@@ -17,6 +17,9 @@ elseif(UNIX AND NOT APPLE)
     endif()
 endif()
 
+# Set SFML to use shared libraries by default
+set(SFML_STATIC_LIBRARIES FALSE)
+
 # Find SFML (fall back to find_package if pkg-config not used)
 find_package(SFML 2.5 COMPONENTS graphics window system REQUIRED)
 
