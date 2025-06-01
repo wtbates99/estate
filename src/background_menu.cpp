@@ -11,8 +11,8 @@ BackgroundMenu::BackgroundMenu()
 
 bool BackgroundMenu::initialize() {
     // Load font
-    if (!font.loadFromFile("ARIAL.TTF")) {
-        std::cerr << "Failed to load font for background menu" << std::endl;
+    if (!font.loadFromFile("assets/ARIAL.TTF")) {
+        std::cerr << "Failed to load font from assets/ARIAL.TTF" << std::endl;
         return false;
     }
     

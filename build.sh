@@ -7,5 +7,6 @@ cmake ..
 
 cmake --build . -j$(nproc)
 
+cp ../assets/ARIAL.TTF .
 
 ./estate 

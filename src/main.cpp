@@ -47,7 +47,8 @@ int main() {
     
     // Debug text setup
     sf::Font debugFont;
-    if (!debugFont.loadFromFile("ARIAL.TTF")) {
+    if (!debugFont.loadFromFile("assets/ARIAL.TTF")) {
+        std::cerr << "Failed to load font from assets/ARIAL.TTF" << std::endl;
         return -1;
     }
     sf::Text debugText;
@@ -174,8 +175,9 @@ int main() {
             if (Config::DEBUG_MODE) {
                 if (Config::SHOW_COLLISION_BOXES) {
                     // Draw collision boxes
-                    sf::RectangleShape playerBox(main_player->getBounds().getSize());
-                    playerBox.setPosition(main_player->getBounds().getPosition());
+                    sf::FloatRect playerBounds = main_player->getBounds();
+                    sf::RectangleShape playerBox(sf::Vector2f(playerBounds.width, playerBounds.height));
+                    playerBox.setPosition(playerBounds.left, playerBounds.top);
                     playerBox.setFillColor(sf::Color::Transparent);
                     playerBox.setOutlineColor(sf::Color::Green);
                     playerBox.setOutlineThickness(1);
@@ -183,8 +185,9 @@ int main() {
 
                     for (const auto& enemy : enemies) {
                         if (enemy->isAlive()) {
-                            sf::RectangleShape enemyBox(enemy->getBounds().getSize());
-                            enemyBox.setPosition(enemy->getBounds().getPosition());
+                            sf::FloatRect enemyBounds = enemy->getBounds();
+                            sf::RectangleShape enemyBox(sf::Vector2f(enemyBounds.width, enemyBounds.height));
+                            enemyBox.setPosition(enemyBounds.left, enemyBounds.top);
                             enemyBox.setFillColor(sf::Color::Transparent);
                             enemyBox.setOutlineColor(sf::Color::Red);
                             enemyBox.setOutlineThickness(1);
