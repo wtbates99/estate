@@ -10,6 +10,7 @@ GruntEnemy::GruntEnemy() : Enemy() {
     attackRange = 45.0f;
     attackCooldown = 1.2f;
     directionChangeInterval = 1.0f;
+    experienceValue = 15; // Basic grunt gives moderate experience
     
     // Try to load sprite, fallback to colored rectangle if it fails
     if (!loadTexture("assets/textures/enemies/grunt.png")) {
@@ -36,6 +37,7 @@ ScoutEnemy::ScoutEnemy() : Enemy() {
     attackRange = 35.0f;
     attackCooldown = 0.8f;
     directionChangeInterval = 0.5f; // Changes direction more frequently
+    experienceValue = 20; // Fast and tricky, gives more experience
     
     // Try to load sprite, fallback to colored rectangle if it fails
     if (!loadTexture("assets/textures/enemies/scout.png")) {

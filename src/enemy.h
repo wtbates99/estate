@@ -4,6 +4,9 @@
 #include <memory>
 #include <string>
 
+// Forward declaration to avoid circular dependency
+class Player;
+
 // Base Enemy class
 class Enemy {
 public:
@@ -24,6 +27,9 @@ public:
     sf::Vector2f getWorldPosition() const { return worldPosition; }
     void updatePosition(const sf::Vector2f& playerPos, const sf::Vector2f& cameraOffset);
     
+    // Experience system
+    int getExperienceValue() const { return experienceValue; }
+    
     // Health bar methods
     void drawHealthBar(sf::RenderWindow& window) const;
     void setHealthBarVisible(bool visible) { showHealthBar = visible; }
@@ -38,6 +44,7 @@ protected:
     float attackRange;
     float attackCooldown;
     float attackTimer;
+    int experienceValue; // Experience gained when this enemy is killed
     
     sf::Sprite sprite;
     sf::Texture texture;

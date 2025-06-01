@@ -10,6 +10,7 @@ SniperEnemy::SniperEnemy() : Enemy(), aimTimer(0.0f), isAiming(false) {
     attackRange = SNIPE_RANGE;
     attackCooldown = 4.0f; // Slow but powerful attacks
     directionChangeInterval = 3.0f; // Stays in position longer
+    experienceValue = 30; // Dangerous ranged enemy, good experience
     
     // Try to load sprite, fallback to colored rectangle if it fails
     if (!loadTexture("assets/textures/enemies/sniper.png")) {
@@ -78,6 +79,7 @@ SwarmEnemy::SwarmEnemy() : Enemy(), swarmRadius(50.0f), orbitAngle(0.0f) {
     attackRange = 30.0f;
     attackCooldown = 0.7f;
     directionChangeInterval = 0.3f; // Very frequent direction changes
+    experienceValue = 10; // Weak individually but comes in groups
     
     // Random starting orbit angle
     orbitAngle = (rand() % 360) * (3.14159f / 180.0f);

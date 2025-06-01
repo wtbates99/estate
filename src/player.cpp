@@ -138,8 +138,9 @@ void Player::gainExperience(int exp) {
     
     // Check for level up(s)
     while (experience >= getExperienceNeeded()) {
+        int expNeededForThisLevel = getExperienceNeeded(); // Store before level increment
         level++;
-        experience -= getExperienceNeeded();
+        experience -= expNeededForThisLevel; // Use the stored value
         pendingLevelUps_++;
     }
 }

@@ -40,6 +40,11 @@ int main() {
     sf::Clock fpsClock;
     int frameCount = 0;
     float fps = 0;
+    
+    // Enemy spawning system
+    sf::Clock enemySpawnClock;
+    const float ENEMY_SPAWN_INTERVAL = 3.0f; // Spawn new enemy every 3 seconds
+    const int MIN_ENEMIES = 10; // Minimum number of enemies to maintain
 
     // Game objects (will be initialized after background selection)
     std::unique_ptr<Background> gameBackground;
@@ -166,6 +171,24 @@ int main() {
                         enemy->move(deltaTime);
                         enemy->updatePosition(main_player->getWorldPosition(), sf::Vector2f(0, 0));
                     }
+                }
+
+                // Check for dead enemies and award experience
+                auto it = enemies.begin();
+                while (it != enemies.end()) {
+                    if (!(*it)->isAlive()) {
+                        // Award experience to player before removing the enemy
+                        main_player->gainExperience((*it)->getExperienceValue());
+                        it = enemies.erase(it);
+                    } else {
+                        ++it;
+                    }
+                }
+                
+                // Spawn new enemies if needed
+                if (enemies.size() < MIN_ENEMIES || enemySpawnClock.getElapsedTime().asSeconds() > ENEMY_SPAWN_INTERVAL) {
+                    enemies.push_back(createRandomEnemy());
+                    enemySpawnClock.restart();
                 }
 
                 // Update view to follow player

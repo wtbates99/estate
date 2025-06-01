@@ -10,6 +10,7 @@ BruteEnemy::BruteEnemy() : Enemy(), chargeSpeed(400.0f), isCharging(false) {
     attackRange = 70.0f;
     attackCooldown = 2.0f;
     directionChangeInterval = 2.0f; // Slower to change direction
+    experienceValue = 40; // Tough enemy gives good experience
     
     // Try to load sprite, fallback to colored rectangle if it fails
     if (!loadTexture("assets/textures/enemies/brute.png")) {
@@ -85,6 +86,7 @@ AssassinEnemy::AssassinEnemy() : Enemy(), stealthTimer(0.0f), isStealthed(false)
     attackRange = 25.0f;
     attackCooldown = 0.6f;
     directionChangeInterval = 0.8f;
+    experienceValue = 35; // Stealthy and dangerous, good experience
     
     // Try to load sprite, fallback to colored rectangle if it fails
     if (!loadTexture("assets/textures/enemies/assassin.png")) {
