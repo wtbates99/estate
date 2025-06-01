@@ -14,10 +14,10 @@ BruteEnemy::BruteEnemy() : Enemy(), chargeSpeed(400.0f), isCharging(false) {
     
     // Try to load sprite, fallback to colored rectangle if it fails
     if (!loadTexture("assets/textures/enemies/brute.png")) {
-        initializeShape(sf::Vector2f(60.f, 60.f), sf::Color(139, 69, 19)); // Brown
+        initializeShape(sf::Vector2f(80.f, 80.f), sf::Color(139, 69, 19)); // Brown
     } else {
         sprite.setTexture(texture);
-        sprite.setScale(sf::Vector2f(1.2f, 1.2f)); // Larger scale for brute
+        sprite.setScale(sf::Vector2f(1.5f, 1.5f)); // Moderate scale increase for brute
         sf::FloatRect bounds = sprite.getLocalBounds();
         sprite.setOrigin(bounds.width / 2.f, bounds.height / 2.f);
         sprite.setPosition(worldPosition);
@@ -90,10 +90,10 @@ AssassinEnemy::AssassinEnemy() : Enemy(), stealthTimer(0.0f), isStealthed(false)
     
     // Try to load sprite, fallback to colored rectangle if it fails
     if (!loadTexture("assets/textures/enemies/assassin.png")) {
-        initializeShape(sf::Vector2f(30.f, 30.f), sf::Color::Magenta);
+        initializeShape(sf::Vector2f(45.f, 45.f), sf::Color::Magenta);
     } else {
         sprite.setTexture(texture);
-        sprite.setScale(sf::Vector2f(0.7f, 0.7f)); // Medium scale for assassin
+        sprite.setScale(sf::Vector2f(0.9f, 0.9f)); // Moderate scale increase for assassin
         sf::FloatRect bounds = sprite.getLocalBounds();
         sprite.setOrigin(bounds.width / 2.f, bounds.height / 2.f);
         sprite.setPosition(worldPosition);

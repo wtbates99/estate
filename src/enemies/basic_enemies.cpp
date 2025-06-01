@@ -14,10 +14,10 @@ GruntEnemy::GruntEnemy() : Enemy() {
     
     // Try to load sprite, fallback to colored rectangle if it fails
     if (!loadTexture("assets/textures/enemies/grunt.png")) {
-        initializeShape(sf::Vector2f(40.f, 40.f), sf::Color::Red);
+        initializeShape(sf::Vector2f(50.f, 50.f), sf::Color::Red);
     } else {
         sprite.setTexture(texture);
-        sprite.setScale(sf::Vector2f(0.8f, 0.8f)); // Scale as needed
+        sprite.setScale(sf::Vector2f(1.0f, 1.0f)); // Moderate scale increase
         sf::FloatRect bounds = sprite.getLocalBounds();
         sprite.setOrigin(bounds.width / 2.f, bounds.height / 2.f);
         sprite.setPosition(worldPosition);
@@ -41,10 +41,10 @@ ScoutEnemy::ScoutEnemy() : Enemy() {
     
     // Try to load sprite, fallback to colored rectangle if it fails
     if (!loadTexture("assets/textures/enemies/scout.png")) {
-        initializeShape(sf::Vector2f(25.f, 25.f), sf::Color::Yellow);
+        initializeShape(sf::Vector2f(35.f, 35.f), sf::Color::Yellow);
     } else {
         sprite.setTexture(texture);
-        sprite.setScale(sf::Vector2f(0.6f, 0.6f)); // Smaller scale for scout
+        sprite.setScale(sf::Vector2f(0.8f, 0.8f)); // Moderate scale increase
         sf::FloatRect bounds = sprite.getLocalBounds();
         sprite.setOrigin(bounds.width / 2.f, bounds.height / 2.f);
         sprite.setPosition(worldPosition);

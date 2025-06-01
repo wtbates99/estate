@@ -14,10 +14,10 @@ SniperEnemy::SniperEnemy() : Enemy(), aimTimer(0.0f), isAiming(false) {
     
     // Try to load sprite, fallback to colored rectangle if it fails
     if (!loadTexture("assets/textures/enemies/sniper.png")) {
-        initializeShape(sf::Vector2f(35.f, 35.f), sf::Color::Cyan);
+        initializeShape(sf::Vector2f(50.f, 50.f), sf::Color::Cyan);
     } else {
         sprite.setTexture(texture);
-        sprite.setScale(sf::Vector2f(0.9f, 0.9f)); // Medium scale for sniper
+        sprite.setScale(sf::Vector2f(1.1f, 1.1f)); // Moderate scale increase for sniper
         sf::FloatRect bounds = sprite.getLocalBounds();
         sprite.setOrigin(bounds.width / 2.f, bounds.height / 2.f);
         sprite.setPosition(worldPosition);
@@ -86,10 +86,10 @@ SwarmEnemy::SwarmEnemy() : Enemy(), swarmRadius(50.0f), orbitAngle(0.0f) {
     
     // Try to load sprite, fallback to colored rectangle if it fails
     if (!loadTexture("assets/textures/enemies/swarm.png")) {
-        initializeShape(sf::Vector2f(20.f, 20.f), sf::Color(255, 165, 0)); // Orange
+        initializeShape(sf::Vector2f(30.f, 30.f), sf::Color(255, 165, 0)); // Orange
     } else {
         sprite.setTexture(texture);
-        sprite.setScale(sf::Vector2f(0.5f, 0.5f)); // Small scale for swarm
+        sprite.setScale(sf::Vector2f(0.7f, 0.7f)); // Moderate scale increase for swarm
         sf::FloatRect bounds = sprite.getLocalBounds();
         sprite.setOrigin(bounds.width / 2.f, bounds.height / 2.f);
         sprite.setPosition(worldPosition);
