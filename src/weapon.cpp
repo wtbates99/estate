@@ -51,30 +51,47 @@ bool MeleeWeapon::canAttack(float deltaTime) {
 void MeleeWeapon::attack(const sf::Vector2f& playerPos, const std::vector<std::unique_ptr<Enemy>>& enemies) {
     if (!canAttack(0.0f)) return;
 
-    Enemy* target = findClosestEnemy(playerPos, enemies);
-    if (target) {
+    // Find closest enemy for swing direction (visual purposes)
+    Enemy* closestTarget = findClosestEnemy(playerPos, enemies);
+    if (closestTarget) {
         // Start swing animation
         isSwinging_ = true;
         swingTimer_ = swingDuration_;
         cooldownTimer_ = cooldown_;
         
-        // Calculate swing direction
-        swingDirection_ = target->getWorldPosition() - playerPos;
+        // Calculate swing direction based on closest enemy
+        swingDirection_ = closestTarget->getWorldPosition() - playerPos;
         float length = std::sqrt(swingDirection_.x * swingDirection_.x + swingDirection_.y * swingDirection_.y);
         if (length > 0.0f) {
             swingDirection_ /= length; // Normalize
         }
         
-        // Deal damage immediately for melee weapons
-        target->takeDamage(damage_);
+        // Deal damage to ALL enemies within range (splash damage)
+        for (const auto& enemy : enemies) {
+            if (enemy->isAlive()) {
+                float distance = getDistance(playerPos, enemy->getWorldPosition());
+                if (distance <= range_) {
+                    enemy->takeDamage(damage_);
+                }
+            }
+        }
     }
 }
 
 void MeleeWeapon::draw(sf::RenderWindow& window, const sf::Vector2f& playerPos) const {
+    // Draw range circle
+    sf::CircleShape rangeCircle(range_);
+    rangeCircle.setFillColor(sf::Color::Transparent);
+    rangeCircle.setOutlineThickness(2.0f);
+    rangeCircle.setOutlineColor(sf::Color(100, 100, 255, 80));
+    rangeCircle.setOrigin(range_, range_);
+    rangeCircle.setPosition(playerPos);
+    window.draw(rangeCircle);
+    
     if (isSwinging_) {
         // Draw swing arc
         sf::CircleShape swingArc(range_);
-        swingArc.setFillColor(sf::Color(255, 255, 255, 100)); // Semi-transparent white
+        swingArc.setFillColor(sf::Color(255, 255, 255, 150)); // Brighter for attack animation
         swingArc.setOrigin(range_, range_);
         swingArc.setPosition(playerPos);
         
@@ -99,6 +116,10 @@ void MeleeWeapon::update(float deltaTime) {
             swingTimer_ = 0.0f;
         }
     }
+}
+
+std::string MeleeWeapon::getName() const {
+    return "Melee Weapon";
 }
 
 // RangedWeapon implementation
@@ -135,6 +156,15 @@ void RangedWeapon::attack(const sf::Vector2f& playerPos, const std::vector<std::
 }
 
 void RangedWeapon::draw(sf::RenderWindow& window, const sf::Vector2f& playerPos) const {
+    // Draw range circle
+    sf::CircleShape rangeCircle(range_);
+    rangeCircle.setFillColor(sf::Color::Transparent);
+    rangeCircle.setOutlineThickness(2.0f);
+    rangeCircle.setOutlineColor(sf::Color(100, 100, 255, 80));
+    rangeCircle.setOrigin(range_, range_);
+    rangeCircle.setPosition(playerPos);
+    window.draw(rangeCircle);
+    
     // Draw projectiles
     for (const auto& projectile : projectiles_) {
         if (projectile.active) {
@@ -149,6 +179,10 @@ void RangedWeapon::draw(sf::RenderWindow& window, const sf::Vector2f& playerPos)
 
 void RangedWeapon::update(float deltaTime) {
     updateProjectiles(deltaTime, std::vector<std::unique_ptr<Enemy>>{}); // Empty vector for now
+}
+
+std::string RangedWeapon::getName() const {
+    return "Ranged Weapon";
 }
 
 void RangedWeapon::updateProjectiles(float deltaTime, const std::vector<std::unique_ptr<Enemy>>& enemies) {

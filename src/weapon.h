@@ -57,6 +57,7 @@ public:
     void attack(const sf::Vector2f& playerPos, const std::vector<std::unique_ptr<Enemy>>& enemies) override;
     void draw(sf::RenderWindow& window, const sf::Vector2f& playerPos) const override;
     void update(float deltaTime) override;
+    std::string getName() const override;
 
 protected:
     float swingDuration_;
@@ -74,6 +75,7 @@ public:
     void attack(const sf::Vector2f& playerPos, const std::vector<std::unique_ptr<Enemy>>& enemies) override;
     void draw(sf::RenderWindow& window, const sf::Vector2f& playerPos) const override;
     void update(float deltaTime) override;
+    std::string getName() const override;
 
     // Public method for updating projectiles with enemy collision
     void updateProjectiles(float deltaTime, const std::vector<std::unique_ptr<Enemy>>& enemies);
