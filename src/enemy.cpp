@@ -205,18 +205,12 @@ sf::FloatRect Enemy::getBounds() const {
 }
 
 bool Enemy::shouldDropHealthPack(const Player& player) {
-    // TEMPORARY: High drop rate for testing - remove this and uncomment below when testing is done
-    return (rand() % 100) < 50; // 50% drop rate for testing
-    
-    /*
     // Calculate health percentage (0.0 to 1.0)
     float healthPercentage = static_cast<float>(player.getHealth()) / static_cast<float>(player.getMaxHealth());
     
-    // Base drop chance when at full health: 2%
-    // Drop chance when at 25% health: 15%
-    // Drop chance when at 10% health: 25%
-    float baseDropChance = 0.02f; // 2% at full health
-    float maxDropChance = 0.25f;  // 25% at very low health
+    // Base drop chance when at full health: 5%
+    float baseDropChance = 0.05f; // 5% at full health
+    float maxDropChance = 0.50f;  // 50% at very low health
     
     // Invert health percentage so lower health = higher chance
     float lowHealthFactor = 1.0f - healthPercentage;
@@ -228,5 +222,4 @@ bool Enemy::shouldDropHealthPack(const Player& player) {
     float randomValue = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
     
     return randomValue < dropChance;
-    */
 }
