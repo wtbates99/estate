@@ -7,11 +7,9 @@ std::unique_ptr<Background> createBackground(BackgroundType type) {
     BackgroundInfo info = getBackgroundInfo(type);
     
     if (!background->loadFromFile(info.filename)) {
-        std::cout << "Failed to load background: " << info.name << " (" << info.filename << ")" << std::endl;
         return nullptr;
     }
     
-    std::cout << "Successfully loaded background: " << info.name << std::endl;
     return background;
 }
 
@@ -44,6 +42,5 @@ std::unique_ptr<Background> createBackgroundWithFallback(BackgroundType primaryT
         return background;
     }
     
-    std::cout << "Trying fallback background..." << std::endl;
     return createBackground(fallbackType);
 } 

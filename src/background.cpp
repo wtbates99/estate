@@ -20,14 +20,12 @@ bool Background::loadFromFile(const std::string& filename) {
     
     // Get texture size to verify it matches our world size
     sf::Vector2u textureSize = backgroundTexture.getSize();
-    std::cout << "Background loaded: " << textureSize.x << "x" << textureSize.y << std::endl;
     
     // If the texture doesn't match world size, we could scale it
     if (textureSize.x != Config::WORLD_WIDTH || textureSize.y != Config::WORLD_HEIGHT) {
         float scaleX = Config::WORLD_WIDTH / static_cast<float>(textureSize.x);
         float scaleY = Config::WORLD_HEIGHT / static_cast<float>(textureSize.y);
         backgroundSprite.setScale(scaleX, scaleY);
-        std::cout << "Background scaled to fit world: " << scaleX << "x" << scaleY << std::endl;
     }
     
     isLoaded = true;
