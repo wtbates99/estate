@@ -9,6 +9,7 @@
 #include "background.h"
 #include "background_menu.h"
 #include "backgrounds/background_factory.h"
+#include "health_pack.h"
 
 int main() {
     // Create a window using config values
@@ -50,6 +51,7 @@ int main() {
     std::unique_ptr<Background> gameBackground;
     std::unique_ptr<Player> main_player;
     std::vector<std::unique_ptr<Enemy>> enemies;
+    std::vector<std::unique_ptr<HealthPack>> healthPacks; // Health pack container
     
     // Talent selection state
     int selectedTalentIndex = 0;
@@ -177,11 +179,38 @@ int main() {
                 auto it = enemies.begin();
                 while (it != enemies.end()) {
                     if (!(*it)->isAlive()) {
+                        // Check if this enemy should drop a health pack
+                        if (Enemy::shouldDropHealthPack(*main_player)) {
+                            sf::Vector2f healthPackPos = (*it)->getWorldPosition();
+                            healthPacks.push_back(std::make_unique<HealthPack>(healthPackPos));
+                            std::cout << "Health pack dropped at: (" << healthPackPos.x << ", " << healthPackPos.y << ")" << std::endl;
+                            std::cout << "Player health: " << main_player->getHealth() << "/" << main_player->getMaxHealth() << std::endl;
+                        }
+                        
                         // Award experience to player before removing the enemy
                         main_player->gainExperience((*it)->getExperienceValue());
                         it = enemies.erase(it);
                     } else {
                         ++it;
+                    }
+                }
+                
+                // Update health packs
+                auto healthPackIt = healthPacks.begin();
+                while (healthPackIt != healthPacks.end()) {
+                    (*healthPackIt)->update(deltaTime);
+                    
+                    // Check for collision with player
+                    if ((*healthPackIt)->checkCollision(*main_player)) {
+                        main_player->healPlayer((*healthPackIt)->getHealAmount());
+                        std::cout << "Health pack collected! Player healed by " << (*healthPackIt)->getHealAmount() << " HP" << std::endl;
+                        healthPackIt = healthPacks.erase(healthPackIt);
+                    } else if ((*healthPackIt)->isExpired()) {
+                        // Remove expired health packs
+                        std::cout << "Health pack expired and removed" << std::endl;
+                        healthPackIt = healthPacks.erase(healthPackIt);
+                    } else {
+                        ++healthPackIt;
                     }
                 }
                 
@@ -205,6 +234,14 @@ int main() {
                 // Give player experience for testing (remove this later)
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::X)) {
                     main_player->gainExperience(10);
+                }
+                
+                // TEMPORARY: Spawn health pack for testing (remove this later)
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::H)) {
+                    sf::Vector2f playerPos = main_player->getWorldPosition();
+                    sf::Vector2f healthPackPos = playerPos + sf::Vector2f(50.f, 0.f); // Spawn to the right of player
+                    healthPacks.push_back(std::make_unique<HealthPack>(healthPackPos));
+                    std::cout << "Manual health pack spawned at: (" << healthPackPos.x << ", " << healthPackPos.y << ")" << std::endl;
                 }
             }
         }
@@ -232,6 +269,11 @@ int main() {
                     enemy->draw(window);
                 }
             }
+            
+            // Draw health packs
+            for (const auto& healthPack : healthPacks) {
+                healthPack->draw(window);
+            }
 
             // Draw debug information in game view
             if (Config::DEBUG_MODE) {
@@ -256,6 +298,17 @@ int main() {
                             window.draw(enemyBox);
                         }
                     }
+                    
+                    // Draw health pack collision boxes
+                    for (const auto& healthPack : healthPacks) {
+                        sf::Vector2f packPos = healthPack->getPosition();
+                        sf::RectangleShape packBox(sf::Vector2f(20.f, 20.f));
+                        packBox.setPosition(packPos.x - 10.f, packPos.y - 10.f);
+                        packBox.setFillColor(sf::Color::Transparent);
+                        packBox.setOutlineColor(sf::Color::Cyan);
+                        packBox.setOutlineThickness(1);
+                        window.draw(packBox);
+                    }
                 }
             }
 
@@ -272,6 +325,7 @@ int main() {
                 
                 std::string debugInfo = "FPS: " + std::to_string(static_cast<int>(fps)) + "\n";
                 debugInfo += "Alive Enemies: " + std::to_string(aliveCount) + "\n";
+                debugInfo += "Health Packs: " + std::to_string(healthPacks.size()) + "\n";
                 debugInfo += "Press 'B' to change background\n";
                 debugInfo += "Press 'X' to gain experience (debug)";
                 

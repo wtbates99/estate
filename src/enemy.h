@@ -30,6 +30,9 @@ public:
     // Experience system
     int getExperienceValue() const { return experienceValue; }
     
+    // Health pack system
+    static bool shouldDropHealthPack(const Player& player);
+    
     // Health bar methods
     void drawHealthBar(sf::RenderWindow& window) const;
     void setHealthBarVisible(bool visible) { showHealthBar = visible; }

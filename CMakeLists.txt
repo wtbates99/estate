@@ -33,6 +33,7 @@ set(SOURCES
     src/background.cpp
     src/background_menu.cpp
     src/talent.cpp
+    src/health_pack.cpp
     src/backgrounds/background_types.cpp
     src/backgrounds/background_factory.cpp
     src/enemies/basic_enemies.cpp
@@ -57,6 +58,7 @@ set(HEADERS
     src/background.h
     src/background_menu.h
     src/talent.h
+    src/health_pack.h
     src/backgrounds/background_types.h
     src/backgrounds/background_factory.h
     src/enemies/basic_enemies.h
