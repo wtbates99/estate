@@ -5,6 +5,7 @@
 #include <vector>
 #include "config.h"
 #include "weapon.h"
+#include "talent.h"
 
 // Forward declarations
 class Enemy;
@@ -33,8 +34,29 @@ public:
     int getCurrentWeaponIndex() const { return currentWeaponIndex_; }
     int getWeaponCount() const { return static_cast<int>(weapons_.size()); }
 
+    // Talent system
+    bool needsLevelUp() const { return pendingLevelUps_ > 0; }
+    void processLevelUp();
+    TalentTree& getTalentTree() { return talentTree_; }
+    const TalentTree& getTalentTree() const { return talentTree_; }
+    void selectTalent(int talentIndex);
+    
+    // Getters for stats (for talent modifications)
+    int getHealth() const { return health; }
+    int getMaxHealth() const { return maxHealth_; }
+    int getLevel() const { return level; }
+    int getExperience() const { return experience; }
+    int getGold() const { return gold; }
+    float getSpeed() const { return speed; }
+    
+    // Setters for talent modifications
+    void setMaxHealth(int maxHealth) { maxHealth_ = maxHealth; }
+    void setSpeed(float newSpeed) { speed = newSpeed; }
+    void healPlayer(int amount);
+
 private:
     int health;
+    int maxHealth_;
     int level;
     int experience;
     int gold;
@@ -48,4 +70,11 @@ private:
     std::vector<std::unique_ptr<Weapon>> weapons_;
     int currentWeaponIndex_;
     bool autoAttack_;
+    
+    // Talent system
+    TalentTree talentTree_;
+    int pendingLevelUps_;
+    
+    // Calculate experience needed for next level
+    int getExperienceNeeded() const;
 }; 

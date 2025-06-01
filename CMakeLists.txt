@@ -32,6 +32,7 @@ set(SOURCES
     src/minimap.cpp
     src/background.cpp
     src/background_menu.cpp
+    src/talent.cpp
     src/backgrounds/background_types.cpp
     src/backgrounds/background_factory.cpp
     src/enemies/basic_enemies.cpp
@@ -41,6 +42,10 @@ set(SOURCES
     src/weapons/melee_weapons.cpp
     src/weapons/ranged_weapons.cpp
     src/weapons/weapon_factory.cpp
+    src/talents/combat_talents.cpp
+    src/talents/defensive_talents.cpp
+    src/talents/utility_talents.cpp
+    src/talents/talent_factory.cpp
 )
 
 # Add header files
@@ -51,6 +56,7 @@ set(HEADERS
     src/minimap.h
     src/background.h
     src/background_menu.h
+    src/talent.h
     src/backgrounds/background_types.h
     src/backgrounds/background_factory.h
     src/enemies/basic_enemies.h
@@ -60,6 +66,10 @@ set(HEADERS
     src/weapons/melee_weapons.h
     src/weapons/ranged_weapons.h
     src/weapons/weapon_factory.h
+    src/talents/combat_talents.h
+    src/talents/defensive_talents.h
+    src/talents/utility_talents.h
+    src/talents/talent_factory.h
 )
 
 # Create executable

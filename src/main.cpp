@@ -30,7 +30,8 @@ int main() {
     // Game state variables
     enum GameState {
         BACKGROUND_SELECTION,
-        PLAYING
+        PLAYING,
+        TALENT_SELECTION
     };
     GameState currentState = BACKGROUND_SELECTION;
 
@@ -44,6 +45,10 @@ int main() {
     std::unique_ptr<Background> gameBackground;
     std::unique_ptr<Player> main_player;
     std::vector<std::unique_ptr<Enemy>> enemies;
+    
+    // Talent selection state
+    int selectedTalentIndex = 0;
+    sf::Vector2f talentTreeOffset(50.f, 50.f);  // Adjusted for new positioning
     
     // Debug text setup
     sf::Font debugFont;
@@ -115,6 +120,27 @@ int main() {
                         currentState = BACKGROUND_SELECTION;
                     }
                 }
+            } else if (currentState == TALENT_SELECTION) {
+                // Handle talent selection events
+                if (event.type == sf::Event::KeyPressed) {
+                    auto availableTalents = main_player->getTalentTree().getAvailableTalents();
+                    
+                    if (event.key.code == sf::Keyboard::Left && selectedTalentIndex > 0) {
+                        selectedTalentIndex--;
+                    } else if (event.key.code == sf::Keyboard::Right && selectedTalentIndex < static_cast<int>(availableTalents.size()) - 1) {
+                        selectedTalentIndex++;
+                    } else if (event.key.code == sf::Keyboard::Enter && !availableTalents.empty()) {
+                        // Select the talent
+                        if (selectedTalentIndex < static_cast<int>(availableTalents.size())) {
+                            main_player->selectTalent(availableTalents[selectedTalentIndex]);
+                            selectedTalentIndex = 0; // Reset selection
+                            currentState = PLAYING; // Return to game
+                        }
+                    } else if (event.key.code == sf::Keyboard::Escape) {
+                        // Skip talent selection (for debugging)
+                        currentState = PLAYING;
+                    }
+                }
             }
         }
 
@@ -122,31 +148,44 @@ int main() {
         if (currentState == BACKGROUND_SELECTION) {
             backgroundMenu.update(deltaTime);
         } else if (currentState == PLAYING) {
-            // Update game state
-            main_player->move(deltaTime);
-            main_player->update(deltaTime, enemies);
-            main_player->wrapPosition();
-            
-            // Update all enemies
-            for (auto& enemy : enemies) {
-                if (enemy->isAlive()) {
-                    enemy->updateAI(main_player->getWorldPosition(), deltaTime);
-                    enemy->move(deltaTime);
-                    enemy->updatePosition(main_player->getWorldPosition(), sf::Vector2f(0, 0));
+            // Check if player needs to level up
+            if (main_player->needsLevelUp()) {
+                main_player->processLevelUp();
+                currentState = TALENT_SELECTION;
+                selectedTalentIndex = 0;
+            } else {
+                // Update game state normally
+                main_player->move(deltaTime);
+                main_player->update(deltaTime, enemies);
+                main_player->wrapPosition();
+                
+                // Update all enemies
+                for (auto& enemy : enemies) {
+                    if (enemy->isAlive()) {
+                        enemy->updateAI(main_player->getWorldPosition(), deltaTime);
+                        enemy->move(deltaTime);
+                        enemy->updatePosition(main_player->getWorldPosition(), sf::Vector2f(0, 0));
+                    }
                 }
-            }
 
-            // Update view to follow player
-            view.setCenter(main_player->getWorldPosition());
-            window.setView(view);
+                // Update view to follow player
+                view.setCenter(main_player->getWorldPosition());
+                window.setView(view);
 
-            // Check for collision between player and enemies
-            for (auto& enemy : enemies) {
-                if (enemy->isAlive() && main_player->getBounds().intersects(enemy->getBounds())) {
-                    enemy->attack(*main_player);
+                // Check for collision between player and enemies
+                for (auto& enemy : enemies) {
+                    if (enemy->isAlive() && main_player->getBounds().intersects(enemy->getBounds())) {
+                        enemy->attack(*main_player);
+                    }
+                }
+                
+                // Give player experience for testing (remove this later)
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::X)) {
+                    main_player->gainExperience(10);
                 }
             }
         }
+        // TALENT_SELECTION state doesn't need updates - it's paused
 
         // Render based on current state
         window.clear(sf::Color::Black);
@@ -210,11 +249,56 @@ int main() {
                 
                 std::string debugInfo = "FPS: " + std::to_string(static_cast<int>(fps)) + "\n";
                 debugInfo += "Alive Enemies: " + std::to_string(aliveCount) + "\n";
-                debugInfo += "Press 'B' to change background";
+                debugInfo += "Press 'B' to change background\n";
+                debugInfo += "Press 'X' to gain experience (debug)";
                 
                 debugText.setString(debugInfo);
                 debugText.setPosition(10, 10);
                 window.draw(debugText);
+            }
+        } else if (currentState == TALENT_SELECTION) {
+            // Draw talent selection screen
+            window.setView(uiView);
+            
+            // Draw semi-transparent overlay
+            sf::RectangleShape overlay(sf::Vector2f(Config::WINDOW_WIDTH, Config::WINDOW_HEIGHT));
+            overlay.setFillColor(sf::Color(0, 0, 0, 150));
+            window.draw(overlay);
+            
+            // Draw title
+            sf::Text titleText;
+            titleText.setFont(debugFont);
+            titleText.setString("LEVEL UP! Choose a Talent");
+            titleText.setCharacterSize(32);
+            titleText.setFillColor(sf::Color::Yellow);
+            titleText.setPosition(Config::WINDOW_WIDTH / 2 - 200, 50);
+            window.draw(titleText);
+            
+            // Draw talent tree
+            main_player->getTalentTree().draw(window, talentTreeOffset);
+            
+            // Draw instructions
+            sf::Text instructText;
+            instructText.setFont(debugFont);
+            instructText.setString("Use LEFT/RIGHT arrows to navigate, ENTER to select, ESC to skip");
+            instructText.setCharacterSize(16);
+            instructText.setFillColor(sf::Color::White);
+            instructText.setPosition(50, Config::WINDOW_HEIGHT - 100);
+            window.draw(instructText);
+            
+            // Highlight selected talent
+            auto availableTalents = main_player->getTalentTree().getAvailableTalents();
+            if (!availableTalents.empty() && selectedTalentIndex < static_cast<int>(availableTalents.size())) {
+                const auto& nodes = main_player->getTalentTree().getNodes();
+                if (availableTalents[selectedTalentIndex] < static_cast<int>(nodes.size())) {
+                    sf::Vector2f talentPos = nodes[availableTalents[selectedTalentIndex]].position + talentTreeOffset;
+                    sf::RectangleShape highlight(sf::Vector2f(180.f, 120.f));
+                    highlight.setPosition(talentPos);
+                    highlight.setFillColor(sf::Color::Transparent);
+                    highlight.setOutlineColor(sf::Color::Yellow);
+                    highlight.setOutlineThickness(3.f);
+                    window.draw(highlight);
+                }
             }
         }
 

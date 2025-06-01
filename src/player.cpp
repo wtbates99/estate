@@ -4,15 +4,18 @@
 #include "config.h"
 #include "enemy.h"
 #include "weapons/weapon_factory.h"
+#include "talents/talent_factory.h"
 
 Player::Player() : 
     health(Config::PLAYER_START_HEALTH), 
+    maxHealth_(Config::PLAYER_START_HEALTH),
     level(1), 
     experience(0), 
     gold(0), 
     speed(Config::PLAYER_SPEED),
     currentWeaponIndex_(0),
-    autoAttack_(true) {
+    autoAttack_(true),
+    pendingLevelUps_(0) {
     shape.setFillColor(sf::Color::Green);
     shape.setSize(sf::Vector2f(50.f, 50.f));
     shape.setOrigin(25.f, 25.f);
@@ -34,6 +37,9 @@ Player::Player() :
     weapons_.push_back(createBow());
     weapons_.push_back(createDagger());
     weapons_.push_back(createCrossbow());
+    
+    // Generate the talent tree once at game start
+    talentTree_.generatePermanentTree();
 }
 
 void Player::move(float deltaTime) {
@@ -129,10 +135,31 @@ void Player::takeDamage(int damage) {
 
 void Player::gainExperience(int exp) {
     experience += exp;
-    // Simple level up system
-    if (experience >= level * 102) {
+    
+    // Check for level up(s)
+    while (experience >= getExperienceNeeded()) {
         level++;
-        experience = 0;
+        experience -= getExperienceNeeded();
+        pendingLevelUps_++;
+    }
+}
+
+void Player::processLevelUp() {
+    if (pendingLevelUps_ > 0) {
+        // For the first level up, unlock the top row if no talents are unlocked yet
+        auto availableTalents = talentTree_.getAvailableTalents();
+        if (availableTalents.empty()) {
+            talentTree_.unlockTopRow();
+        }
+        // For subsequent level ups, the selectTalent method handles unlocking
+        pendingLevelUps_--;
+    }
+}
+
+void Player::selectTalent(int talentIndex) {
+    if (talentTree_.selectTalent(talentIndex, *this)) {
+        // Talent was successfully selected
+        // Note: We don't clear the talent tree anymore - it persists throughout the game
     }
 }
 
@@ -142,6 +169,17 @@ void Player::addGold(int amount) {
 
 bool Player::isAlive() const {
     return health > 0;
+}
+
+void Player::healPlayer(int amount) {
+    health += amount;
+    if (health > maxHealth_) {
+        health = maxHealth_;
+    }
+}
+
+int Player::getExperienceNeeded() const {
+    return level * 100; // Simple scaling: level 1 = 100 exp, level 2 = 200 exp, etc.
 }
 
 void Player::draw(sf::RenderWindow& window) {
@@ -154,7 +192,7 @@ void Player::draw(sf::RenderWindow& window) {
     }
     
     // Update and draw health text
-    healthText.setString("HP: " + std::to_string(health));
+    healthText.setString("HP: " + std::to_string(health) + "/" + std::to_string(maxHealth_));
     // Position text above player
     sf::FloatRect textBounds = healthText.getLocalBounds();
     healthText.setPosition(
@@ -182,6 +220,27 @@ void Player::draw(sf::RenderWindow& window) {
         );
         window.draw(weaponText);
     }
+    
+    // Draw level and experience info
+    sf::Text levelText;
+    levelText.setFont(font);
+    levelText.setCharacterSize(14);
+    levelText.setFillColor(sf::Color(255, 215, 0)); // Gold color using RGB values
+    
+    std::string levelInfo = "Level " + std::to_string(level) + " (";
+    levelInfo += std::to_string(experience) + "/" + std::to_string(getExperienceNeeded()) + " XP)";
+    if (pendingLevelUps_ > 0) {
+        levelInfo += " - LEVEL UP!";
+    }
+    levelText.setString(levelInfo);
+    
+    // Position level text below weapon info
+    sf::FloatRect levelBounds = levelText.getLocalBounds();
+    levelText.setPosition(
+        shape.getPosition().x - levelBounds.width / 2,
+        shape.getPosition().y - shape.getSize().y / 2 - 70
+    );
+    window.draw(levelText);
 }
 
 void Player::wrapPosition() {
