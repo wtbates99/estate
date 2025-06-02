@@ -97,7 +97,6 @@ int main() {
                     gameBackground = createBackgroundWithFallback(selectedType, BackgroundType::FOREST);
                     
                     if (!gameBackground) {
-                        std::cout << "Warning: No background could be loaded. Using black background." << std::endl;
                         gameBackground = std::make_unique<Background>(); // Empty background
                     }
                     
@@ -183,8 +182,6 @@ int main() {
                         if (Enemy::shouldDropHealthPack(*main_player)) {
                             sf::Vector2f healthPackPos = (*it)->getWorldPosition();
                             healthPacks.push_back(std::make_unique<HealthPack>(healthPackPos));
-                            std::cout << "Health pack dropped at: (" << healthPackPos.x << ", " << healthPackPos.y << ")" << std::endl;
-                            std::cout << "Player health: " << main_player->getHealth() << "/" << main_player->getMaxHealth() << std::endl;
                         }
                         
                         // Award experience to player before removing the enemy
@@ -203,11 +200,9 @@ int main() {
                     // Check for collision with player
                     if ((*healthPackIt)->checkCollision(*main_player)) {
                         main_player->healPlayer((*healthPackIt)->getHealAmount());
-                        std::cout << "Health pack collected! Player healed by " << (*healthPackIt)->getHealAmount() << " HP" << std::endl;
                         healthPackIt = healthPacks.erase(healthPackIt);
                     } else if ((*healthPackIt)->isExpired()) {
                         // Remove expired health packs
-                        std::cout << "Health pack expired and removed" << std::endl;
                         healthPackIt = healthPacks.erase(healthPackIt);
                     } else {
                         ++healthPackIt;
@@ -241,7 +236,6 @@ int main() {
                     sf::Vector2f playerPos = main_player->getWorldPosition();
                     sf::Vector2f healthPackPos = playerPos + sf::Vector2f(50.f, 0.f); // Spawn to the right of player
                     healthPacks.push_back(std::make_unique<HealthPack>(healthPackPos));
-                    std::cout << "Manual health pack spawned at: (" << healthPackPos.x << ", " << healthPackPos.y << ")" << std::endl;
                 }
             }
         }
