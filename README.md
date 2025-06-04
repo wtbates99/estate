@@ -1,8 +1,64 @@
-# SFML 2D Game
+# Estate - 2D Action Survival Game
 
-This is a basic 2D game project built with C++ and SFML, managed by CMake. It opens an 800x600 window, providing a solid foundation for your 2D game development.
+Estate is a feature-rich 2D action survival game built with C++ and SFML. Fight enemies, collect weapons, develop talents, and survive in various environments with a comprehensive progression system.
+
+## Features
+
+- **Combat System**: Melee and ranged weapons with different combat mechanics
+- **Enemy AI**: Multiple enemy types with different behaviors and combat patterns
+- **Talent System**: Unlock and upgrade abilities as you progress
+- **Multiple Environments**: Various background environments to explore
+- **Health System**: Health packs and survival mechanics
+- **Minimap**: Navigate the world with an integrated minimap
+- **Asset Management**: Organized weapon, enemy, and environment textures
+
+## Project Structure
+
+```
+estate/
+├── assets/               # Game assets and resources
+│   ├── backgrounds/      # Background textures
+│   ├── textures/         # Game sprites and textures
+│   │   └── enemies/      # Enemy sprite textures
+│   ├── weapons/          # Weapon textures
+│   └── ARIAL.TTF         # Font file
+├── src/                  # Source code
+│   ├── main.cpp          # Main game loop
+│   ├── config.h          # Game configuration
+│   ├── player.h/cpp      # Player character logic
+│   ├── enemy.h/cpp       # Base enemy class
+│   ├── weapon.h/cpp      # Weapon system
+│   ├── talent.h/cpp      # Talent/skill system
+│   ├── minimap.h/cpp     # Minimap functionality
+│   ├── background.h/cpp  # Background rendering
+│   ├── health_pack.h/cpp # Health item system
+│   ├── backgrounds/      # Background system implementations
+│   ├── enemies/          # Enemy type implementations
+│   ├── weapons/          # Weapon type implementations
+│   └── talents/          # Talent system implementations
+├── build.sh              # Build script
+├── CMakeLists.txt        # CMake configuration
+└── README.md             # This file
+```
 
 ## Setup
+
+### macOS
+
+#### Install Dependencies
+```bash
+# Install Homebrew if not already installed
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Install SFML and CMake
+brew install sfml cmake
+```
+
+#### Clone Repository
+```bash
+git clone https://github.com/wtbates99/estate.git
+cd estate
+```
 
 ### Linux (Ubuntu/Debian)
 
@@ -14,8 +70,8 @@ sudo apt-get install g++ cmake libsfml-dev
 
 #### Clone Repository
 ```bash
-git clone <repository-url>
-cd piracte
+git clone https://github.com/wtbates99/estate.git
+cd estate
 ```
 
 ### Windows (MinGW)
@@ -23,82 +79,104 @@ cd piracte
 #### Install MSYS2 and Dependencies
 ```bash
 pacman -Syu
-pacman -S mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake
+pacman -S mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake mingw-w64-x86_64-sfml
 ```
-
-#### Install CMake
-Download and install CMake from [cmake.org](https://cmake.org). Make sure to add it to your system's PATH during installation.
-
-#### Download and Configure SFML
-1. Download SFML 2.5.1 (MinGW 64-bit) from [sfml-dev.org](https://www.sfml-dev.org)
-2. Extract the downloaded archive (e.g., `SFML-2.5.1-windows-gcc-7.3.0-mingw-64-bit.zip`) to a convenient location, for example, `C:\SFML-2.5.1`
-3. Add `C:\SFML-2.5.1\bin` to your system's PATH environment variable
 
 #### Clone Repository
 ```bash
-git clone <repository-url>
-cd piracte
+git clone https://github.com/wtbates99/estate.git
+cd estate
 ```
 
 ## Build
 
-After setting up, navigate to the project root and follow these steps to build:
+### Quick Build (Recommended)
+Use the provided build script:
+```bash
+chmod +x build.sh
+./build.sh
+```
+
+### Manual Build
+If you prefer to build manually:
 
 ```bash
-mkdir build
+mkdir -p build
 cd build
 ```
 
-### Linux
+#### macOS/Linux
 ```bash
-cmake -S .. -B . && cmake --build .
+cmake ..
+cmake --build . -j$(nproc)
 ```
 
-### Windows
+#### Windows
 ```bash
-cmake -S .. -B . -G "MinGW Makefiles" -DCMAKE_PREFIX_PATH=C:/SFML-2.5.1 && cmake --build .
+cmake .. -G "MinGW Makefiles"
+cmake --build . -j$(nproc)
 ```
 
 ## Run
 
-Once built, you can run the game:
+After building, run the game:
 
-### Linux
+### macOS/Linux
 ```bash
 ./estate
 ```
 
 ### Windows
-Before running, copy the necessary SFML DLLs (Dynamic Link Libraries) from `C:\SFML-2.5.1\bin` to your `build/` directory. You'll typically need:
-- `sfml-graphics-2.dll`
-- `sfml-window-2.dll`
-- `sfml-system-2.dll`
-
-Then, run the executable:
 ```bash
 estate.exe
 ```
 
+## Game Controls
+
+- **WASD**: Move player
+- **Mouse**: Aim and attack
+- **B**: Return to background selection
+- **ESC**: Exit game/Skip talent selection
+- **Arrow Keys**: Navigate talent selection
+- **Enter**: Select talent
+
+## Development
+
+### Adding New Content
+
+1. **New Enemies**: Add implementations in `src/enemies/` and update the enemy factory
+2. **New Weapons**: Add implementations in `src/weapons/` and update the weapon factory  
+3. **New Talents**: Add implementations in `src/talents/` and update the talent factory
+4. **New Backgrounds**: Add implementations in `src/backgrounds/` and update the background factory
+5. **Assets**: Place new textures in appropriate `assets/` subdirectories
+
+### Building in Debug Mode
+
+The game includes debug features enabled by default:
+- FPS counter
+- Collision box visualization
+- Debug console output
+
+Configure these in `src/config.h`.
+
 ## Troubleshooting
 
 ### SFML not found during build
+- **macOS**: Ensure SFML is installed via Homebrew: `brew install sfml`
 - **Linux**: Ensure `libsfml-dev` is correctly installed
-- **Windows**: Double-check your SFML installation path and PATH environment variable. If issues persist, you might need to explicitly tell CMake where to find SFML by adding `-DSFML_DIR=C:/SFML-2.5.1/lib/cmake/SFML` to your cmake command
+- **Windows**: Make sure SFML is properly installed via MSYS2
 
-### DLL errors (Windows)
-Make sure all required SFML DLLs are either in your `build/` directory or accessible via your system's PATH
+### Font loading errors
+Make sure `assets/ARIAL.TTF` exists and is accessible. The build process should copy assets to the build directory automatically.
 
-### No window appears
-Verify that `src/main.cpp` correctly uses the `sf::` namespace for SFML functions and objects (e.g., `sf::RenderWindow`, `sf::Event`)
+## Contributing
 
-## Next Steps
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-This project provides a minimal SFML setup. Here's how you can expand it:
+## License
 
-1. **Add game logic**: Edit `src/main.cpp` to introduce sprites, handle user input, implement game states, and more!
-
-2. **Include new source files**: If you create additional `.cpp` files, remember to update `CMakeLists.txt` to include them in your build. For example:
-
-```cmake
-add_executable(estate src/main.cpp src/newfile.cpp)
-```
+This project is open source. Please add an appropriate license file for your preferred license terms.
