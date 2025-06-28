@@ -47,6 +47,11 @@ set(SOURCES
     src/talents/defensive_talents.cpp
     src/talents/utility_talents.cpp
     src/talents/talent_factory.cpp
+    src/gold_drop.cpp
+    src/gold_manager.cpp
+    src/shop.cpp
+    src/weapon_tier_system.cpp
+    src/weapon_selection.cpp
 )
 
 # Add header files
@@ -72,6 +77,11 @@ set(HEADERS
     src/talents/defensive_talents.h
     src/talents/utility_talents.h
     src/talents/talent_factory.h
+    src/gold_drop.h
+    src/gold_manager.h
+    src/shop.h
+    src/weapon_tier_system.h
+    src/weapon_selection.h
 )
 
 # Create executable

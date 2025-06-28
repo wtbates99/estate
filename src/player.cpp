@@ -137,6 +137,11 @@ void Player::addWeapon(std::unique_ptr<Weapon> weapon) {
     weapons_.push_back(std::move(weapon));
 }
 
+void Player::clearWeapons() {
+    weapons_.clear();
+    currentWeaponIndex_ = 0;
+}
+
 Weapon* Player::getCurrentWeapon() const {
     if (currentWeaponIndex_ >= 0 && currentWeaponIndex_ < static_cast<int>(weapons_.size())) {
         return weapons_[currentWeaponIndex_].get();

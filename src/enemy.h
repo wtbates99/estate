@@ -30,6 +30,9 @@ public:
     // Experience system
     int getExperienceValue() const { return experienceValue; }
     
+    // Gold system
+    int getGoldValue() const { return goldValue; }
+    
     // Health pack system
     static bool shouldDropHealthPack(const Player& player);
     
@@ -48,6 +51,7 @@ protected:
     float attackCooldown;
     float attackTimer;
     int experienceValue; // Experience gained when this enemy is killed
+    int goldValue; // Gold dropped when this enemy is killed
     
     sf::Sprite sprite;
     sf::Texture texture;

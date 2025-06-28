@@ -1,7 +1,8 @@
 #include "minimap.h"
 #include "config.h"
+#include "shop.h"
 
-void Minimap::draw(sf::RenderWindow& window, const Player& player, const std::vector<std::unique_ptr<Enemy>>& enemies) {
+void Minimap::draw(sf::RenderWindow& window, const Player& player, const std::vector<std::unique_ptr<Enemy>>& enemies, const Shop* shop) {
     // Create minimap background
     sf::RectangleShape minimapBackground(sf::Vector2f(Config::MINIMAP_SIZE, Config::MINIMAP_SIZE));
     minimapBackground.setPosition(Config::WINDOW_WIDTH - Config::MINIMAP_SIZE - Config::MINIMAP_PADDING, 
@@ -43,5 +44,23 @@ void Minimap::draw(sf::RenderWindow& window, const Player& player, const std::ve
             );
             window.draw(enemyDot);
         }
+    }
+    
+    // Draw shop on minimap if it exists
+    if (shop && shop->isVisible()) {
+        sf::CircleShape shopDot(6.0f); // Slightly larger than other dots
+        shopDot.setFillColor(sf::Color::Yellow);
+        shopDot.setOutlineColor(sf::Color(255, 215, 0)); // Gold outline
+        shopDot.setOutlineThickness(2.0f);
+        shopDot.setOrigin(6.0f, 6.0f);
+        
+        sf::Vector2f shopPos = shop->getPosition();
+        shopDot.setPosition(
+            Config::WINDOW_WIDTH - Config::MINIMAP_SIZE - Config::MINIMAP_PADDING + 
+            (shopPos.x * Config::MINIMAP_SCALE),
+            Config::MINIMAP_PADDING + 
+            (shopPos.y * Config::MINIMAP_SCALE)
+        );
+        window.draw(shopDot);
     }
 } 

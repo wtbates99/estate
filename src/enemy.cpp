@@ -16,6 +16,7 @@ Enemy::Enemy() :
     attackCooldown(1.0f),
     attackTimer(0.0f),
     experienceValue(25), // Default experience value
+    goldValue(5), // Default gold value
     directionChangeTimer(0.0f),
     directionChangeInterval(1.0f),
     showHealthBar(true) {

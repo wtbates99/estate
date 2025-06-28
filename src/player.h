@@ -30,6 +30,7 @@ public:
     void attack(const std::vector<std::unique_ptr<Enemy>>& enemies);
     void switchWeapon(int weaponIndex);
     void addWeapon(std::unique_ptr<Weapon> weapon);
+    void clearWeapons();
     Weapon* getCurrentWeapon() const;
     int getCurrentWeaponIndex() const { return currentWeaponIndex_; }
     int getWeaponCount() const { return static_cast<int>(weapons_.size()); }

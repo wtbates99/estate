@@ -2,6 +2,7 @@
 #include <vector>
 #include <memory>
 #include <iostream>
+#include <cmath>
 #include "player.h"
 #include "enemies/enemy_factory.h"
 #include "config.h"
@@ -10,6 +11,9 @@
 #include "background_menu.h"
 #include "backgrounds/background_factory.h"
 #include "health_pack.h"
+#include "gold_manager.h"
+#include "shop.h"
+#include "weapon_selection.h"
 
 int main() {
     // Create a window using config values
@@ -31,6 +35,7 @@ int main() {
     // Game state variables
     enum GameState {
         BACKGROUND_SELECTION,
+        WEAPON_SELECTION,
         PLAYING,
         TALENT_SELECTION
     };
@@ -52,6 +57,9 @@ int main() {
     std::unique_ptr<Player> main_player;
     std::vector<std::unique_ptr<Enemy>> enemies;
     std::vector<std::unique_ptr<HealthPack>> healthPacks; // Health pack container
+    std::unique_ptr<GoldManager> goldManager;
+    std::unique_ptr<Shop> shop;
+    std::unique_ptr<WeaponSelection> weaponSelection;
     
     // Talent selection state
     int selectedTalentIndex = 0;
@@ -102,6 +110,9 @@ int main() {
                     
                     // Initialize game objects
                     main_player = std::make_unique<Player>();
+                    goldManager = std::make_unique<GoldManager>();
+                    shop = std::make_unique<Shop>();
+                    weaponSelection = std::make_unique<WeaponSelection>();
                     
                     // Create enemies
                     for (int i = 0; i < 15; i++) {
@@ -112,6 +123,15 @@ int main() {
                     view.setCenter(main_player->getWorldPosition());
                     window.setView(view);
                     
+                    // Go to weapon selection first
+                    weaponSelection->setActive(true);
+                    currentState = WEAPON_SELECTION;
+                }
+            } else if (currentState == WEAPON_SELECTION) {
+                weaponSelection->handleInput(event, *main_player);
+                
+                // Check if weapon selection is complete
+                if (weaponSelection->isSelectionComplete()) {
                     currentState = PLAYING;
                 }
             } else if (currentState == PLAYING) {
@@ -125,7 +145,15 @@ int main() {
                         backgroundMenu.activate();
                         currentState = BACKGROUND_SELECTION;
                     }
+                    // Allow manual shop opening with E if in range and shop UI is not showing
+                    if (event.key.code == sf::Keyboard::E && shop->isPlayerInRange(*main_player) && !shop->isUIShowing()) {
+                        shop->openUI();
+                        continue; // Skip other input handling for this frame
+                    }
                 }
+                
+                // Handle shop input (only if shop UI is showing)
+                shop->handleInput(event, *main_player);
             } else if (currentState == TALENT_SELECTION) {
                 // Handle talent selection events
                 if (event.type == sf::Event::KeyPressed) {
@@ -153,6 +181,8 @@ int main() {
         // Update based on current state
         if (currentState == BACKGROUND_SELECTION) {
             backgroundMenu.update(deltaTime);
+        } else if (currentState == WEAPON_SELECTION) {
+            weaponSelection->update(deltaTime);
         } else if (currentState == PLAYING) {
             // Check if player needs to level up
             if (main_player->needsLevelUp()) {
@@ -160,71 +190,83 @@ int main() {
                 currentState = TALENT_SELECTION;
                 selectedTalentIndex = 0;
             } else {
-                // Update game state normally
-                main_player->move(deltaTime);
-                main_player->update(deltaTime, enemies);
-                main_player->wrapPosition();
-                
-                // Update all enemies
-                for (auto& enemy : enemies) {
-                    if (enemy->isAlive()) {
-                        enemy->updateAI(main_player->getWorldPosition(), deltaTime);
-                        enemy->move(deltaTime);
-                        enemy->updatePosition(main_player->getWorldPosition(), sf::Vector2f(0, 0));
-                    }
-                }
-
-                // Check for dead enemies and award experience
-                auto it = enemies.begin();
-                while (it != enemies.end()) {
-                    if (!(*it)->isAlive()) {
-                        // Check if this enemy should drop a health pack
-                        if (Enemy::shouldDropHealthPack(*main_player)) {
-                            sf::Vector2f healthPackPos = (*it)->getWorldPosition();
-                            healthPacks.push_back(std::make_unique<HealthPack>(healthPackPos));
-                        }
-                        
-                        // Award experience to player before removing the enemy
-                        main_player->gainExperience((*it)->getExperienceValue());
-                        it = enemies.erase(it);
-                    } else {
-                        ++it;
-                    }
-                }
-                
-                // Update health packs
-                auto healthPackIt = healthPacks.begin();
-                while (healthPackIt != healthPacks.end()) {
-                    (*healthPackIt)->update(deltaTime);
+                // Only update game if shop UI is not showing (pause game during shopping)
+                if (!shop->isUIShowing()) {
+                    // Update game state normally
+                    main_player->move(deltaTime);
+                    main_player->update(deltaTime, enemies);
+                    main_player->wrapPosition();
                     
-                    // Check for collision with player
-                    if ((*healthPackIt)->checkCollision(*main_player)) {
-                        main_player->healPlayer((*healthPackIt)->getHealAmount());
-                        healthPackIt = healthPacks.erase(healthPackIt);
-                    } else if ((*healthPackIt)->isExpired()) {
-                        // Remove expired health packs
-                        healthPackIt = healthPacks.erase(healthPackIt);
-                    } else {
-                        ++healthPackIt;
+                    // Update all enemies
+                    for (auto& enemy : enemies) {
+                        if (enemy->isAlive()) {
+                            enemy->updateAI(main_player->getWorldPosition(), deltaTime);
+                            enemy->move(deltaTime);
+                            enemy->updatePosition(main_player->getWorldPosition(), sf::Vector2f(0, 0));
+                        }
+                    }
+
+                    // Check for dead enemies and award experience
+                    auto it = enemies.begin();
+                    while (it != enemies.end()) {
+                        if (!(*it)->isAlive()) {
+                            // Check if this enemy should drop a health pack
+                            if (Enemy::shouldDropHealthPack(*main_player)) {
+                                sf::Vector2f healthPackPos = (*it)->getWorldPosition();
+                                healthPacks.push_back(std::make_unique<HealthPack>(healthPackPos));
+                            }
+                            
+                            // Drop gold
+                            goldManager->spawnGold((*it)->getWorldPosition(), (*it)->getGoldValue());
+                            
+                            // Award experience to player before removing the enemy
+                            main_player->gainExperience((*it)->getExperienceValue());
+                            it = enemies.erase(it);
+                        } else {
+                            ++it;
+                        }
+                    }
+                    
+                    // Update health packs
+                    auto healthPackIt = healthPacks.begin();
+                    while (healthPackIt != healthPacks.end()) {
+                        (*healthPackIt)->update(deltaTime);
+                        
+                        // Check for collision with player
+                        if ((*healthPackIt)->checkCollision(*main_player)) {
+                            main_player->healPlayer((*healthPackIt)->getHealAmount());
+                            healthPackIt = healthPacks.erase(healthPackIt);
+                        } else if ((*healthPackIt)->isExpired()) {
+                            // Remove expired health packs
+                            healthPackIt = healthPacks.erase(healthPackIt);
+                        } else {
+                            ++healthPackIt;
+                        }
+                    }
+                    
+                    // Update gold manager
+                    goldManager->update(deltaTime, *main_player);
+                    
+                    // Spawn new enemies if needed
+                    if (enemies.size() < MIN_ENEMIES || enemySpawnClock.getElapsedTime().asSeconds() > ENEMY_SPAWN_INTERVAL) {
+                        enemies.push_back(createRandomEnemy());
+                        enemySpawnClock.restart();
+                    }
+
+                    // Update view to follow player
+                    view.setCenter(main_player->getWorldPosition());
+                    window.setView(view);
+
+                    // Check for collision between player and enemies
+                    for (auto& enemy : enemies) {
+                        if (enemy->isAlive() && main_player->getBounds().intersects(enemy->getBounds())) {
+                            enemy->attack(*main_player);
+                        }
                     }
                 }
                 
-                // Spawn new enemies if needed
-                if (enemies.size() < MIN_ENEMIES || enemySpawnClock.getElapsedTime().asSeconds() > ENEMY_SPAWN_INTERVAL) {
-                    enemies.push_back(createRandomEnemy());
-                    enemySpawnClock.restart();
-                }
-
-                // Update view to follow player
-                view.setCenter(main_player->getWorldPosition());
-                window.setView(view);
-
-                // Check for collision between player and enemies
-                for (auto& enemy : enemies) {
-                    if (enemy->isAlive() && main_player->getBounds().intersects(enemy->getBounds())) {
-                        enemy->attack(*main_player);
-                    }
-                }
+                // Always update shop (even when paused, so it can handle input)
+                shop->update(deltaTime, *main_player);
                 
                 // Give player experience for testing (remove this later)
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::X)) {
@@ -247,6 +289,9 @@ int main() {
         if (currentState == BACKGROUND_SELECTION) {
             window.setView(uiView);
             backgroundMenu.draw(window);
+        } else if (currentState == WEAPON_SELECTION) {
+            window.setView(uiView);
+            weaponSelection->draw(window);
         } else if (currentState == PLAYING) {
             // Set game view for drawing game objects
             window.setView(view);
@@ -268,6 +313,12 @@ int main() {
             for (const auto& healthPack : healthPacks) {
                 healthPack->draw(window);
             }
+            
+            // Draw gold drops
+            goldManager->draw(window);
+            
+            // Draw shop
+            shop->draw(window);
 
             // Draw debug information in game view
             if (Config::DEBUG_MODE) {
@@ -308,7 +359,45 @@ int main() {
 
             // Switch to UI view for minimap and FPS
             window.setView(uiView);
-            Minimap::draw(window, *main_player, enemies);
+            Minimap::draw(window, *main_player, enemies, shop.get());
+            
+            // Draw shop UI on top of everything
+            shop->drawUI(window);
+            
+            // Draw gold counter
+            sf::Text goldText;
+            goldText.setFont(debugFont);
+            goldText.setString("Gold: " + std::to_string(main_player->getGold()));
+            goldText.setCharacterSize(24);
+            goldText.setFillColor(sf::Color::Yellow);
+            goldText.setStyle(sf::Text::Bold);
+            goldText.setPosition(10, Config::WINDOW_HEIGHT - 40);
+            window.draw(goldText);
+            
+            // Draw shop distance indicator
+            if (shop) {
+                sf::Vector2f playerPos = main_player->getWorldPosition();
+                sf::Vector2f shopPos = shop->getPosition();
+                float distance = std::sqrt(std::pow(playerPos.x - shopPos.x, 2) + std::pow(playerPos.y - shopPos.y, 2));
+                
+                sf::Text shopText;
+                shopText.setFont(debugFont);
+                if (distance <= 100.0f) {
+                    if (shop->isUIShowing()) {
+                        shopText.setString("SHOP - A/D: Category, W/S: Select, E: Buy, Q: Close");
+                    } else {
+                        shopText.setString("SHOP - Press E to open");
+                    }
+                    shopText.setFillColor(sf::Color::Green);
+                } else {
+                    shopText.setString("Shop: " + std::to_string(static_cast<int>(distance)) + "m away");
+                    shopText.setFillColor(sf::Color::Cyan);
+                }
+                shopText.setCharacterSize(20);
+                shopText.setPosition(10, Config::WINDOW_HEIGHT - 70);
+                window.draw(shopText);
+                
+            }
 
             if (Config::DEBUG_MODE && Config::SHOW_FPS) {
                 // Count alive enemies for debug display
