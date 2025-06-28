@@ -49,10 +49,37 @@ public:
     int getGold() const { return gold; }
     float getSpeed() const { return speed; }
     
+    // Talent stat modifiers
+    float getDamageMultiplier() const { return damageMultiplier_; }
+    float getAttackSpeedMultiplier() const { return attackSpeedMultiplier_; }
+    float getCritChance() const { return critChance_; }
+    float getCritMultiplier() const { return critMultiplier_; }
+    float getLifeStealPercent() const { return lifeStealPercent_; }
+    float getArmorValue() const { return armorValue_; }
+    float getRegenRate() const { return regenRate_; }
+    float getExperienceMultiplier() const { return experienceMultiplier_; }
+    float getGoldMultiplier() const { return goldMultiplier_; }
+    float getDodgeChance() const { return dodgeChance_; }
+    
     // Setters for talent modifications
     void setMaxHealth(int maxHealth) { maxHealth_ = maxHealth; }
     void setSpeed(float newSpeed) { speed = newSpeed; }
     void healPlayer(int amount);
+    void addDamageMultiplier(float bonus) { damageMultiplier_ += bonus; }
+    void addAttackSpeedMultiplier(float bonus) { attackSpeedMultiplier_ += bonus; }
+    void addCritChance(float bonus) { critChance_ += bonus; }
+    void addCritMultiplier(float bonus) { critMultiplier_ += bonus; }
+    void addLifeSteal(float bonus) { lifeStealPercent_ += bonus; }
+    void addArmor(float bonus) { armorValue_ += bonus; }
+    void addRegenRate(float bonus) { regenRate_ += bonus; }
+    void addExperienceMultiplier(float bonus) { experienceMultiplier_ += bonus; }
+    void addGoldMultiplier(float bonus) { goldMultiplier_ += bonus; }
+    void addDodgeChance(float bonus) { dodgeChance_ += bonus; }
+    
+    // Helper methods for calculating talent-modified values
+    int calculateModifiedDamage(int baseDamage) const;
+    float calculateModifiedCooldown(float baseCooldown) const;
+    void applyLifeSteal(int damageDealt);
 
 private:
     int health;
@@ -74,6 +101,18 @@ private:
     // Talent system
     TalentTree talentTree_;
     int pendingLevelUps_;
+    
+    // Talent stat modifiers
+    float damageMultiplier_;
+    float attackSpeedMultiplier_;
+    float critChance_;
+    float critMultiplier_;
+    float lifeStealPercent_;
+    float armorValue_;
+    float regenRate_;
+    float experienceMultiplier_;
+    float goldMultiplier_;
+    float dodgeChance_;
     
     // Calculate experience needed for next level
     int getExperienceNeeded() const;

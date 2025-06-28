@@ -15,7 +15,17 @@ Player::Player() :
     speed(Config::PLAYER_SPEED),
     currentWeaponIndex_(0),
     autoAttack_(true),
-    pendingLevelUps_(0) {
+    pendingLevelUps_(0),
+    damageMultiplier_(1.0f),
+    attackSpeedMultiplier_(1.0f),
+    critChance_(0.0f),
+    critMultiplier_(2.0f),
+    lifeStealPercent_(0.0f),
+    armorValue_(0.0f),
+    regenRate_(0.0f),
+    experienceMultiplier_(1.0f),
+    goldMultiplier_(1.0f),
+    dodgeChance_(0.0f) {
     shape.setFillColor(sf::Color::Green);
     shape.setSize(sf::Vector2f(50.f, 50.f));
     shape.setOrigin(25.f, 25.f);
@@ -61,6 +71,17 @@ void Player::move(float deltaTime) {
 }
 
 void Player::update(float deltaTime, const std::vector<std::unique_ptr<Enemy>>& enemies) {
+    // Handle regeneration
+    if (regenRate_ > 0.0f && health < maxHealth_) {
+        static float regenTimer = 0.0f;
+        regenTimer += deltaTime;
+        if (regenTimer >= 1.0f) { // Regenerate every second
+            int regenAmount = static_cast<int>(maxHealth_ * regenRate_);
+            healPlayer(regenAmount);
+            regenTimer = 0.0f;
+        }
+    }
+    
     // Update current weapon
     if (getCurrentWeapon()) {
         getCurrentWeapon()->update(deltaTime);
@@ -68,7 +89,7 @@ void Player::update(float deltaTime, const std::vector<std::unique_ptr<Enemy>>& 
         // Handle ranged weapon projectile updates with enemy collision
         if (getCurrentWeapon()->getType() == Weapon::Type::RANGED) {
             RangedWeapon* rangedWeapon = static_cast<RangedWeapon*>(getCurrentWeapon());
-            rangedWeapon->updateProjectiles(deltaTime, enemies);
+            rangedWeapon->updateProjectiles(deltaTime, enemies, this);
         }
     }
 
@@ -92,7 +113,7 @@ void Player::update(float deltaTime, const std::vector<std::unique_ptr<Enemy>>& 
     }
 
     // Auto-attack if enabled and enemies are nearby
-    if (autoAttack_ && getCurrentWeapon() && getCurrentWeapon()->canAttack(deltaTime)) {
+    if (autoAttack_ && getCurrentWeapon() && getCurrentWeapon()->canAttack(deltaTime, this)) {
         // Check if there are enemies in range
         if (getCurrentWeapon()->hasEnemiesInRange(worldPosition, enemies)) {
             attack(enemies);
@@ -102,7 +123,7 @@ void Player::update(float deltaTime, const std::vector<std::unique_ptr<Enemy>>& 
 
 void Player::attack(const std::vector<std::unique_ptr<Enemy>>& enemies) {
     if (getCurrentWeapon()) {
-        getCurrentWeapon()->attack(worldPosition, enemies);
+        getCurrentWeapon()->attack(worldPosition, enemies, this);
     }
 }
 
@@ -129,12 +150,26 @@ void Player::updatePosition(const sf::Vector2f& cameraOffset) {
 }
 
 void Player::takeDamage(int damage) {
-    health -= damage;
+    // Check for dodge chance
+    if (dodgeChance_ > 0.0f) {
+        float dodgeRoll = static_cast<float>(rand()) / RAND_MAX;
+        if (dodgeRoll < dodgeChance_) {
+            return; // Dodged the attack
+        }
+    }
+    
+    // Apply armor reduction
+    float damageReduction = armorValue_ / (armorValue_ + 100.0f); // Diminishing returns formula
+    int reducedDamage = static_cast<int>(damage * (1.0f - damageReduction));
+    
+    health -= reducedDamage;
     if (health < 0) health = 0;
 }
 
 void Player::gainExperience(int exp) {
-    experience += exp;
+    // Apply experience multiplier from talents
+    int adjustedExp = static_cast<int>(exp * experienceMultiplier_);
+    experience += adjustedExp;
     
     // Check for level up(s)
     while (experience >= getExperienceNeeded()) {
@@ -165,7 +200,9 @@ void Player::selectTalent(int talentIndex) {
 }
 
 void Player::addGold(int amount) {
-    gold += amount;
+    // Apply gold multiplier from talents
+    int adjustedGold = static_cast<int>(amount * goldMultiplier_);
+    gold += adjustedGold;
 }
 
 bool Player::isAlive() const {
@@ -250,5 +287,31 @@ void Player::wrapPosition() {
     if (worldPosition.x > Config::WORLD_WIDTH) worldPosition.x = 0;
     if (worldPosition.y < 0) worldPosition.y = Config::WORLD_HEIGHT;
     if (worldPosition.y > Config::WORLD_HEIGHT) worldPosition.y = 1;
+}
+
+int Player::calculateModifiedDamage(int baseDamage) const {
+    float modifiedDamage = static_cast<float>(baseDamage) * damageMultiplier_;
+    
+    // Apply critical strike chance
+    if (critChance_ > 0.0f) {
+        float critRoll = static_cast<float>(rand()) / RAND_MAX;
+        if (critRoll < critChance_) {
+            modifiedDamage *= critMultiplier_;
+        }
+    }
+    
+    return static_cast<int>(modifiedDamage);
+}
+
+float Player::calculateModifiedCooldown(float baseCooldown) const {
+    // Attack speed multiplier reduces cooldown
+    return baseCooldown / (1.0f + attackSpeedMultiplier_);
+}
+
+void Player::applyLifeSteal(int damageDealt) {
+    if (lifeStealPercent_ > 0.0f) {
+        int healAmount = static_cast<int>(damageDealt * lifeStealPercent_);
+        healPlayer(healAmount);
+    }
 }
 

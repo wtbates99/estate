@@ -42,7 +42,7 @@ ArmorTalent::ArmorTalent()
 }
 
 void ArmorTalent::apply(Player& player) {
-    // In a full implementation, we'd add armor mechanics to the player
+    player.addArmor(static_cast<float>(armorPoints_));
 }
 
 void ArmorTalent::onLevelUp(Player& player) {
@@ -69,7 +69,8 @@ RegenerationTalent::RegenerationTalent()
 }
 
 void RegenerationTalent::apply(Player& player) {
-    // Implementation would add regeneration mechanics
+    float regenPercent = regenRate_ / 100.0f; // Convert to percentage of max health
+    player.addRegenRate(regenPercent);
 }
 
 void RegenerationTalent::onLevelUp(Player& player) {
@@ -125,7 +126,7 @@ DodgeTalent::DodgeTalent()
 }
 
 void DodgeTalent::apply(Player& player) {
-    // Implementation would add dodge mechanics
+    player.addDodgeChance(dodgeChance_);
 }
 
 void DodgeTalent::onLevelUp(Player& player) {

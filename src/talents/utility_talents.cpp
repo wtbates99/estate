@@ -40,7 +40,8 @@ ExperienceBoostTalent::ExperienceBoostTalent()
 }
 
 void ExperienceBoostTalent::apply(Player& player) {
-    // Implementation would modify experience gain mechanics
+    float bonusMultiplier = expMultiplier_ - 1.0f; // Convert from total to bonus
+    player.addExperienceMultiplier(bonusMultiplier);
 }
 
 void ExperienceBoostTalent::onLevelUp(Player& player) {
@@ -67,7 +68,8 @@ GoldFindTalent::GoldFindTalent()
 }
 
 void GoldFindTalent::apply(Player& player) {
-    // Implementation would modify gold gain mechanics
+    float bonusMultiplier = goldMultiplier_ - 1.0f; // Convert from total to bonus
+    player.addGoldMultiplier(bonusMultiplier);
 }
 
 void GoldFindTalent::onLevelUp(Player& player) {
@@ -94,7 +96,8 @@ LuckyDropsTalent::LuckyDropsTalent()
 }
 
 void LuckyDropsTalent::apply(Player& player) {
-    // Implementation would modify drop chance mechanics
+    // Lucky drops affects item generation - implementation would be in loot system
+    // For now, this is a passive effect tracked by the talent itself
 }
 
 void LuckyDropsTalent::onLevelUp(Player& player) {
@@ -121,7 +124,8 @@ MinimapMasteryTalent::MinimapMasteryTalent()
 }
 
 void MinimapMasteryTalent::apply(Player& player) {
-    // Implementation would modify minimap range
+    // Minimap mastery affects rendering - implementation would be in minimap system
+    // For now, this is a passive effect tracked by the talent itself
 }
 
 void MinimapMasteryTalent::onLevelUp(Player& player) {

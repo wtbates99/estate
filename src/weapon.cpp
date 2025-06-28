@@ -1,5 +1,6 @@
 #include "weapon.h"
 #include "enemy.h"
+#include "player.h"
 #include <cmath>
 #include <algorithm>
 
@@ -41,15 +42,15 @@ MeleeWeapon::MeleeWeapon(int damage, float cooldown, float range, float swingDur
       swingDuration_(swingDuration), swingTimer_(0.0f), isSwinging_(false) {
 }
 
-bool MeleeWeapon::canAttack(float deltaTime) {
+bool MeleeWeapon::canAttack(float deltaTime, const Player* player) {
     cooldownTimer_ -= deltaTime;
     if (cooldownTimer_ < 0.0f) cooldownTimer_ = 0.0f;
     
     return cooldownTimer_ <= 0.0f && !isSwinging_;
 }
 
-void MeleeWeapon::attack(const sf::Vector2f& playerPos, const std::vector<std::unique_ptr<Enemy>>& enemies) {
-    if (!canAttack(0.0f)) return;
+void MeleeWeapon::attack(const sf::Vector2f& playerPos, const std::vector<std::unique_ptr<Enemy>>& enemies, Player* player) {
+    if (!canAttack(0.0f, player)) return;
 
     // Find closest enemy for swing direction (visual purposes)
     Enemy* closestTarget = findClosestEnemy(playerPos, enemies);
@@ -57,7 +58,10 @@ void MeleeWeapon::attack(const sf::Vector2f& playerPos, const std::vector<std::u
         // Start swing animation
         isSwinging_ = true;
         swingTimer_ = swingDuration_;
-        cooldownTimer_ = cooldown_;
+        
+        // Apply attack speed modifier from talents
+        float modifiedCooldown = player ? player->calculateModifiedCooldown(cooldown_) : cooldown_;
+        cooldownTimer_ = modifiedCooldown;
         
         // Calculate swing direction based on closest enemy
         swingDirection_ = closestTarget->getWorldPosition() - playerPos;
@@ -67,13 +71,22 @@ void MeleeWeapon::attack(const sf::Vector2f& playerPos, const std::vector<std::u
         }
         
         // Deal damage to ALL enemies within range (splash damage)
+        int totalDamageDealt = 0;
         for (const auto& enemy : enemies) {
             if (enemy->isAlive()) {
                 float distance = getDistance(playerPos, enemy->getWorldPosition());
                 if (distance <= range_) {
-                    enemy->takeDamage(damage_);
+                    // Calculate modified damage using player's talents
+                    int modifiedDamage = player ? player->calculateModifiedDamage(damage_) : damage_;
+                    enemy->takeDamage(modifiedDamage);
+                    totalDamageDealt += modifiedDamage;
                 }
             }
+        }
+        
+        // Apply life steal if player has it
+        if (player && totalDamageDealt > 0) {
+            player->applyLifeSteal(totalDamageDealt);
         }
     }
 }
@@ -127,15 +140,15 @@ RangedWeapon::RangedWeapon(int damage, float cooldown, float range, float projec
     : Weapon(Type::RANGED, damage, cooldown, range), projectileSpeed_(projectileSpeed) {
 }
 
-bool RangedWeapon::canAttack(float deltaTime) {
+bool RangedWeapon::canAttack(float deltaTime, const Player* player) {
     cooldownTimer_ -= deltaTime;
     if (cooldownTimer_ < 0.0f) cooldownTimer_ = 0.0f;
     
     return cooldownTimer_ <= 0.0f;
 }
 
-void RangedWeapon::attack(const sf::Vector2f& playerPos, const std::vector<std::unique_ptr<Enemy>>& enemies) {
-    if (!canAttack(0.0f)) return;
+void RangedWeapon::attack(const sf::Vector2f& playerPos, const std::vector<std::unique_ptr<Enemy>>& enemies, Player* player) {
+    if (!canAttack(0.0f, player)) return;
 
     Enemy* target = findClosestEnemy(playerPos, enemies);
     if (target) {
@@ -150,7 +163,9 @@ void RangedWeapon::attack(const sf::Vector2f& playerPos, const std::vector<std::
             sf::Vector2f velocity = direction * projectileSpeed_;
             projectiles_.emplace_back(playerPos, velocity);
             
-            cooldownTimer_ = cooldown_;
+            // Apply attack speed modifier from talents
+            float modifiedCooldown = player ? player->calculateModifiedCooldown(cooldown_) : cooldown_;
+            cooldownTimer_ = modifiedCooldown;
         }
     }
 }
@@ -185,7 +200,7 @@ std::string RangedWeapon::getName() const {
     return "Ranged Weapon";
 }
 
-void RangedWeapon::updateProjectiles(float deltaTime, const std::vector<std::unique_ptr<Enemy>>& enemies) {
+void RangedWeapon::updateProjectiles(float deltaTime, const std::vector<std::unique_ptr<Enemy>>& enemies, Player* player) {
     for (auto& projectile : projectiles_) {
         if (projectile.active) {
             // Update position
@@ -203,7 +218,15 @@ void RangedWeapon::updateProjectiles(float deltaTime, const std::vector<std::uni
                 if (enemy->isAlive()) {
                     float distance = getDistance(projectile.position, enemy->getWorldPosition());
                     if (distance < 20.0f) { // Hit radius
-                        enemy->takeDamage(damage_);
+                        // Calculate modified damage using player's talents
+                        int modifiedDamage = player ? player->calculateModifiedDamage(damage_) : damage_;
+                        enemy->takeDamage(modifiedDamage);
+                        
+                        // Apply life steal if player has it
+                        if (player) {
+                            player->applyLifeSteal(modifiedDamage);
+                        }
+                        
                         projectile.active = false;
                         break;
                     }

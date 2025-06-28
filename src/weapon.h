@@ -6,6 +6,7 @@
 
 // Forward declarations
 class Enemy;
+class Player;
 
 // Base weapon class
 class Weapon {
@@ -19,8 +20,8 @@ public:
     virtual ~Weapon() = default;
 
     // Pure virtual methods that must be implemented by derived classes
-    virtual bool canAttack(float deltaTime) = 0;
-    virtual void attack(const sf::Vector2f& playerPos, const std::vector<std::unique_ptr<Enemy>>& enemies) = 0;
+    virtual bool canAttack(float deltaTime, const Player* player = nullptr) = 0;
+    virtual void attack(const sf::Vector2f& playerPos, const std::vector<std::unique_ptr<Enemy>>& enemies, Player* player = nullptr) = 0;
     virtual void draw(sf::RenderWindow& window, const sf::Vector2f& playerPos) const = 0;
     virtual void update(float deltaTime) = 0;
     virtual std::string getName() const = 0;
@@ -53,8 +54,8 @@ class MeleeWeapon : public Weapon {
 public:
     MeleeWeapon(int damage, float cooldown, float range, float swingDuration = 0.3f);
 
-    bool canAttack(float deltaTime) override;
-    void attack(const sf::Vector2f& playerPos, const std::vector<std::unique_ptr<Enemy>>& enemies) override;
+    bool canAttack(float deltaTime, const Player* player = nullptr) override;
+    void attack(const sf::Vector2f& playerPos, const std::vector<std::unique_ptr<Enemy>>& enemies, Player* player = nullptr) override;
     void draw(sf::RenderWindow& window, const sf::Vector2f& playerPos) const override;
     void update(float deltaTime) override;
     std::string getName() const override;
@@ -71,14 +72,14 @@ class RangedWeapon : public Weapon {
 public:
     RangedWeapon(int damage, float cooldown, float range, float projectileSpeed = 400.0f);
 
-    bool canAttack(float deltaTime) override;
-    void attack(const sf::Vector2f& playerPos, const std::vector<std::unique_ptr<Enemy>>& enemies) override;
+    bool canAttack(float deltaTime, const Player* player = nullptr) override;
+    void attack(const sf::Vector2f& playerPos, const std::vector<std::unique_ptr<Enemy>>& enemies, Player* player = nullptr) override;
     void draw(sf::RenderWindow& window, const sf::Vector2f& playerPos) const override;
     void update(float deltaTime) override;
     std::string getName() const override;
 
     // Public method for updating projectiles with enemy collision
-    void updateProjectiles(float deltaTime, const std::vector<std::unique_ptr<Enemy>>& enemies);
+    void updateProjectiles(float deltaTime, const std::vector<std::unique_ptr<Enemy>>& enemies, Player* player = nullptr);
 
 protected:
     struct Projectile {

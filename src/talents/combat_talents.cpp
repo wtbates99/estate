@@ -9,8 +9,8 @@ DamageBoostTalent::DamageBoostTalent()
 }
 
 void DamageBoostTalent::apply(Player& player) {
-    // For now, we'll track this in the talent itself
-    // In a full implementation, we'd modify weapon damage through the player
+    float bonusMultiplier = damageMultiplier_ - 1.0f; // Convert from total to bonus
+    player.addDamageMultiplier(bonusMultiplier);
 }
 
 void DamageBoostTalent::onLevelUp(Player& player) {
@@ -38,7 +38,7 @@ AttackSpeedTalent::AttackSpeedTalent()
 }
 
 void AttackSpeedTalent::apply(Player& player) {
-    // Implementation would modify weapon attack cooldown
+    player.addAttackSpeedMultiplier(speedBonus_);
 }
 
 void AttackSpeedTalent::onLevelUp(Player& player) {
@@ -65,7 +65,8 @@ CriticalStrikeTalent::CriticalStrikeTalent()
 }
 
 void CriticalStrikeTalent::apply(Player& player) {
-    // Implementation would add critical strike mechanics
+    player.addCritChance(critChance_);
+    player.addCritMultiplier(critMultiplier_ - 2.0f); // Base crit multiplier is 2.0
 }
 
 void CriticalStrikeTalent::onLevelUp(Player& player) {
@@ -94,7 +95,7 @@ VampirismTalent::VampirismTalent()
 }
 
 void VampirismTalent::apply(Player& player) {
-    // Implementation would add life steal mechanics
+    player.addLifeSteal(lifeStealPercent_);
 }
 
 void VampirismTalent::onLevelUp(Player& player) {
@@ -121,7 +122,8 @@ BerserkTalent::BerserkTalent()
 }
 
 void BerserkTalent::apply(Player& player) {
-    // Implementation would check health and modify damage
+    // Berserk is a conditional effect that needs to be checked during combat
+    // The damage bonus is applied in weapon damage calculation
 }
 
 void BerserkTalent::onLevelUp(Player& player) {
@@ -150,7 +152,7 @@ WeaponMasteryTalent::WeaponMasteryTalent()
 }
 
 void WeaponMasteryTalent::apply(Player& player) {
-    // Implementation would add weapon-specific bonuses
+    player.addDamageMultiplier(weaponDamageBonus_);
 }
 
 void WeaponMasteryTalent::onLevelUp(Player& player) {
@@ -177,7 +179,8 @@ DoubleStrikeTalent::DoubleStrikeTalent()
 }
 
 void DoubleStrikeTalent::apply(Player& player) {
-    // Implementation would add double strike mechanics
+    // Double strike is handled in weapon attack logic
+    // Store the chance for later reference
 }
 
 void DoubleStrikeTalent::onLevelUp(Player& player) {
@@ -204,7 +207,8 @@ ExecutionerTalent::ExecutionerTalent()
 }
 
 void ExecutionerTalent::apply(Player& player) {
-    // Implementation would add execution mechanics
+    // Executioner is a conditional effect applied during combat
+    // The bonus damage is calculated in weapon damage logic
 }
 
 void ExecutionerTalent::onLevelUp(Player& player) {
