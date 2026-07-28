@@ -50,8 +50,8 @@ estate/
 # Install Homebrew if not already installed
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-# Install SFML and CMake
-brew install sfml cmake
+# This project uses the SFML 2 API. The unversioned `sfml` formula is SFML 3.
+brew install sfml@2 cmake
 ```
 
 #### Clone Repository
@@ -108,13 +108,13 @@ cd build
 #### macOS/Linux
 ```bash
 cmake ..
-cmake --build . -j$(nproc)
+cmake --build . --parallel
 ```
 
 #### Windows
 ```bash
 cmake .. -G "MinGW Makefiles"
-cmake --build . -j$(nproc)
+cmake --build . --parallel
 ```
 
 ## Run
@@ -162,7 +162,7 @@ Configure these in `src/config.h`.
 ## Troubleshooting
 
 ### SFML not found during build
-- **macOS**: Ensure SFML is installed via Homebrew: `brew install sfml`
+- **macOS**: Install the SFML 2 formula with Homebrew: `brew install sfml@2`
 - **Linux**: Ensure `libsfml-dev` is correctly installed
 - **Windows**: Make sure SFML is properly installed via MSYS2
 

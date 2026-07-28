@@ -1,12 +1,13 @@
-#!/bin/bash
-mkdir -p build
+#!/usr/bin/env bash
+set -euo pipefail
 
-cd build
+project_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+build_dir="${project_dir}/build"
 
-cmake ..
+cmake -S "${project_dir}" -B "${build_dir}"
+cmake --build "${build_dir}" --parallel
 
-cmake --build . -j$(nproc)
+cp "${project_dir}/assets/ARIAL.TTF" "${build_dir}/"
 
-cp ../assets/ARIAL.TTF .
-
-./estate 
+cd "${build_dir}"
+exec ./estate
