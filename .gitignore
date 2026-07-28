@@ -1,0 +1,82 @@
+# Build artifacts
+build/
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.a
+*.lib
+*.dylib
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+*.cmake
+
+# Compiled files
+## Object files
+*.o
+*.obj
+*.slo
+*.lo
+
+## Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+## Static libraries
+*.a
+*.lib
+*.lai
+*.la
+
+## Executables
+*.exe
+*.out
+*.app
+
+## Precompiled headers
+*.gch
+*.pch
+
+## Fortran modules
+*.mod
+*.smod
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.log
+*.tmp
+*.temp
+
+# Dependency directories
+SFML/
+vendor/
+deps/
+
+# OS-specific files
+## macOS
+.DS_Store
+
+## Windows
+Thumbs.db
+*.pdb
+
+# Python
+venv/
+.env/
+*.pyc
+__pycache__/
+*.pyc
+
+# Asset build outputs
+assets/*.o
+assets/*.bin
